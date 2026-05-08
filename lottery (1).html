@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TA互动世界 · 幸运抽奖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 背景动态渐变 */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #ff9a9e, #ffc3a0, #ffafbd, #c9ffbf, #ff9a9e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 背景模糊遮罩 */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255,192,203,0.2) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* 浮动装饰容器 */
+        .floating-decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        /* 飘动元素基础样式 */
+        .float-item {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.6;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        /* 星星闪烁 */
+        .twinkle-star {
+            font-size: 20px;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+        }
+        
+        /* 爱心飘动 */
+        .floating-heart {
+            font-size: 18px;
+            animation: floatHeart 6s ease-in-out infinite;
+        }
+        
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-15px) scale(1.1); }
+            50% { transform: translateY(-25px) scale(0.95); }
+            75% { transform: translateY(-10px) scale(1.05); }
+        }
+        
+        /* 礼物emoji浮动 */
+        .gift-float {
+            font-size: 44px;
+            animation: ipFloat 8s ease-in-out infinite;
+        }
+        
+        @keyframes ipFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-30px) rotate(-3deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+        
+        /* 祝福文字浮动 */
+        .blessing-float {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 6px rgba(255,107,107,0.5);
+            animation: blessingFloat 10s ease-in-out infinite;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+        
+        @keyframes blessingFloat {
+            0%, 100% { transform: translateY(0) rotate(-2deg); opacity: 0.7; }
+            50% { transform: translateY(-25px) rotate(2deg); opacity: 1; }
+        }
+        
+        /* 彩带飘动 */
+        .ribbon {
+            font-size: 24px;
+            animation: ribbonFloat 5s ease-in-out infinite;
+        }
+        
+        @keyframes ribbonFloat {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            33% { transform: translateX(10px) rotate(10deg); }
+            66% { transform: translateX(-10px) rotate(-10deg); }
+        }
+        
+        /* 闪光粒子 */
+        .sparkle-particle {
+            width: 6px;
+            height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkleFloat 4s ease-in-out infinite;
+            box-shadow: 0 0 10px #ffd700;
+        }
+        
+        @keyframes sparkleFloat {
+            0%, 100% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-20px); }
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 182, 193, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 卡片装饰角 */
+        .card::before,
+        .card::after {
+            content: '✨';
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.6;
+            animation: cardSparkle 3s ease-in-out infinite;
+        }
+        
+        .card::before {
+            top: 10px;
+            left: 10px;
+        }
+        
+        .card::after {
+            bottom: 10px;
+            right: 10px;
+            animation-delay: 1.5s;
+        }
+        
+        @keyframes cardSparkle {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        /* 标题装饰 */
+        .title-decoration {
+            position: absolute;
+            font-size: 16px;
+            animation: titleSparkle 2s ease-in-out infinite;
+        }
+        
+        .title-decoration.left {
+            left: 20%;
+            top: -5px;
+            animation-delay: 0s;
+        }
+        
+        .title-decoration.right {
+            right: 20%;
+            top: -5px;
+            animation-delay: 1s;
+        }
+        
+        @keyframes titleSparkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .input-group input:focus {
+            border-color: #ff8e53;
+            box-shadow: 0 0 0 4px rgba(255, 142, 83, 0.1);
+        }
+        
+        .input-hint {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 6px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: btnShine 3s linear infinite;
+        }
+        
+        @keyframes btnShine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .admin-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+        
+        .admin-btn:hover {
+            opacity: 0.6;
+        }
+        
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal h3 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 16px;
+        }
+        
+        .modal p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        /* 欢迎页 */
+        .welcome-page {
+            display: none;
+            text-align: center;
+        }
+        
+        .welcome-page.active {
+            display: block;
+        }
+        
+        .welcome-name {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-chances {
+            font-size: 1.1rem;
+            color: #ff6b6b;
+            margin-bottom: 24px;
+        }
+        
+        .chance-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        /* 抽奖动画 */
+        .lottery-animation {
+            display: none;
+            text-align: center;
+        }
+        
+        .lottery-animation.active {
+            display: block;
+        }
+        
+        /* 泡泡玛特风格盲盒机 */
+        .gacha-machine {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+            background: linear-gradient(145deg, #ff8e53, #ff6b6b);
+            border-radius: 50%;
+            animation: shake 0.5s ease-in-out infinite;
+            box-shadow: 0 10px 40px rgba(255, 107, 107, 0.4),
+                        0 0 60px rgba(255, 142, 83, 0.3),
+                        inset 0 -5px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* 光芒效果 */
+        .gacha-machine::before {
+            content: '🎁';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            z-index: 2;
+        }
+        
+        .machine-glow {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, transparent 70%);
+            animation: machineGlow 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes machineGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 结果页 */
+        .result-page {
+            display: none;
+            text-align: center;
+        }
+        
+        .result-page.active {
+            display: block;
+        }
+        
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 16px;
+            animation: resultBounce 0.6s ease-out;
+        }
+        
+        @keyframes resultBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .result-prize {
+            font-size: 1.3rem;
+            color: #ff6b6b;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: linear-gradient(135deg, #fff5f5, #ffe4e1);
+            border-radius: 12px;
+            border: 2px dashed #ffb6c1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prize-category {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .prize-name {
+            font-size: 1.4rem;
+            color: #ff6b6b;
+            font-weight: 700;
+        }
+        
+        .result-encourage {
+            color: #888;
+            margin-bottom: 24px;
+        }
+        
+        /* 撒花效果 */
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2000;
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 中奖IP飘落 */
+        .ip-confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2001;
+        }
+        
+        .ip-confetti-item {
+            position: absolute;
+            font-size: 30px;
+            animation: ipConfettiFall 4s ease-out forwards;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes ipConfettiFall {
+            0% {
+                transform: translateY(-50px) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(0) rotate(20deg) scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        /* 管理员面板 */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .admin-panel.active {
+            display: flex;
+        }
+        
+        .admin-content {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .admin-header h2 {
+            color: #333;
+        }
+        
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: #f8f8f8;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .prize-section {
+            margin-bottom: 20px;
+        }
+        
+        .prize-section h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .prize-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .prize-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .prize-item:last-child {
+            border-bottom: none;
+        }
+        
+        .export-btn {
+            width: 100%;
+            padding: 14px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 16px;
+        }
+        
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 错误提示 */
+        .error-msg {
+            color: #ff4444;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .error-msg.show {
+            display: block;
+        }
+        
+        /* 剩余机会提示 */
+        .remaining-chance {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .remaining-chance h4 {
+            margin-bottom: 8px;
+        }
+        
+        .remaining-chance p {
+            margin-bottom: 16px;
+        }
+
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 盲盒开启效果 */
+        .box-open-animation {
+            display: none;
+            text-align: center;
+        }
+        
+        .box-open-animation.active {
+            display: block;
+        }
+        
+        /* 泡泡玛特风格盲盒 */
+        .mystery-box {
+            width: 180px;
+            height: 180px;
+            margin: 20px auto;
+            position: relative;
+            animation: boxFloat 2s ease-in-out infinite;
+        }
+        
+        .mystery-box .box-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #ff8e53, #ff6b6b);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4),
+                        0 0 30px rgba(255, 142, 83, 0.3);
+            position: relative;
+            border: 4px solid #ffd700;
+        }
+        
+        /* 泡泡玛特风格边框装饰 */
+        .mystery-box .box-body::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 14px;
+            pointer-events: none;
+        }
+        
+        .mystery-box .box-lid {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 30px;
+            background: linear-gradient(145deg, #ffab8e, #ffa070);
+            border-radius: 8px 8px 0 0;
+            border: 2px solid #ffd700;
+        }
+        
+        .mystery-box .box-ribbon {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(90deg, #ffd700, #ffed4a, #ffd700);
+            transform: translateY(-50%);
+        }
+        
+        .mystery-box .box-bow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 40px;
+            background: #ffd700;
+            clip-path: polygon(50% 0%, 0% 100%, 50% 70%, 100% 100%);
+        }
+        
+        /* 盲盒周围IP装饰 */
+        .box-ip-decor {
+            position: absolute;
+            font-size: 20px;
+            animation: decorFloat 3s ease-in-out infinite;
+        }
+        
+        .box-ip-decor:nth-child(1) { top: -30px; left: -20px; animation-delay: 0s; }
+        .box-ip-decor:nth-child(2) { top: -30px; right: -20px; animation-delay: 0.5s; }
+        .box-ip-decor:nth-child(3) { bottom: -20px; left: -30px; animation-delay: 1s; }
+        .box-ip-decor:nth-child(4) { bottom: -20px; right: -30px; animation-delay: 1.5s; }
+        
+        @keyframes decorFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(10deg); }
+        }
+        
+        @keyframes boxFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(-3deg); }
+            75% { transform: translateY(-10px) rotate(3deg); }
+        }
+        
+        @keyframes boxOpen {
+            0% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(1.2) rotate(-10deg); }
+            50% { transform: scale(1.3) rotate(10deg); }
+            70% { transform: scale(1.2) rotate(-5deg); }
+            100% { transform: scale(0) rotate(0deg); opacity: 0; }
+        }
+        
+        .mystery-box.opening {
+            animation: boxOpen 0.6s ease-out forwards;
+        }
+        
+        .prize-reveal {
+            display: none;
+            animation: prizeReveal 0.5s ease-out forwards;
+        }
+        
+        .prize-reveal.active {
+            display: block;
+        }
+        
+        @keyframes prizeReveal {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 增强闪光效果 */
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .sparkle {
+            position: absolute;
+            font-size: 20px;
+            animation: sparkle 1s ease-out forwards;
+        }
+        
+        /* 多彩闪光 */
+        .sparkle.gold { color: #ffd700; }
+        .sparkle.pink { color: #ff69b4; }
+        .sparkle.blue { color: #87ceeb; }
+        .sparkle.green { color: #90ee90; }
+        
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+            100% { transform: scale(2) rotate(360deg); opacity: 0; }
+        }
+        
+        /* 抽奖进行中背景粒子 */
+        .lottery-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .lottery-particle {
+            position: absolute;
+            font-size: 16px;
+            animation: particleFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            50% { transform: translateY(-30px) translateX(10px); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 背景效果 -->
+    <div class="bg-gradient"></div>
+    <div class="bg-overlay"></div>
+    
+    <!-- 浮动装饰元素 -->
+    <div class="floating-decorations" id="floatingDecorations"></div>
+    
+    <button class="admin-btn" onclick="showAdminLogin()">⚙️</button>
+    
+    <div class="container">
+        <!-- 首页表单 -->
+        <div id="page-form" class="page active">
+            <div class="card">
+                <h1>🎉 TA互动世界 · 幸运抽奖 <span class="title-decoration left">⭐</span><span class="title-decoration right">✨</span></h1>
+                <p class="subtitle">输入信息，开启你的幸运之旅</p>
+                
+                <div class="input-group">
+                    <label>姓名</label>
+                    <input type="text" id="input-name" placeholder="例如: Cora Liu" autocomplete="off">
+                    <p class="input-hint">请使用与报名时一致的英文名，格式：名 姓（首字母大写）</p>
+                    <p class="error-msg" id="name-error"></p>
+                </div>
+                
+                <div class="input-group">
+                    <label>幸运数字</label>
+                    <input type="number" id="input-number" placeholder="请输入您的幸运数字" min="1" max="99">
+                    <p class="error-msg" id="number-error"></p>
+                </div>
+                
+                <button class="btn btn-primary" onclick="handleSubmit()">开始抽奖 🎰</button>
+            </div>
+        </div>
+        
+        <!-- 欢迎页 -->
+        <div id="page-welcome" class="page">
+            <div class="card welcome-page active">
+                <h1>🎊 欢迎! <span class="title-decoration left">🦷</span><span class="title-decoration right">💎</span></h1>
+                <p class="welcome-name" id="welcome-name"></p>
+                <p class="welcome-chances">您有 <span class="chance-badge" id="total-chances"></span> 次抽奖机会</p>
+                <button class="btn btn-primary" id="btn-first-draw" onclick="startLottery()">立即抽奖 🎁</button>
+                <div class="remaining-chance" id="remaining-info" style="display:none;">
+                    <h4>✨ 还有第2次抽奖机会!</h4>
+                    <p id="remaining-text"></p>
+                    <button class="btn btn-primary" onclick="startLottery()">继续第2次抽奖 🎁</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 抽奖动画页 -->
+        <div id="page-animation" class="page">
+            <!-- 抽奖粒子背景 -->
+            <div class="lottery-particles" id="lotteryParticles"></div>
+            
+            <div class="card lottery-animation active">
+                <h1>🎰 抽奖进行中 <span class="title-decoration left">💫</span><span class="title-decoration right">🌟</span></h1>
+                <div class="gacha-machine" id="gacha-machine">
+                    <div class="machine-glow"></div>
+                </div>
+                
+                <div class="mystery-box" id="mystery-box" style="display:none;">
+                    <div class="box-lid"></div>
+                    <div class="box-body">
+                        <div class="box-ribbon"></div>
+                        <div class="box-bow"></div>
+                        <!-- IP装饰 -->
+                        <span class="box-ip-decor">⭐</span>
+                        <span class="box-ip-decor">🦷</span>
+                        <span class="box-ip-decor">🧸</span>
+                        <span class="box-ip-decor">💎</span>
+                        ❓
+                    </div>
+                </div>
+                <p class="loading-text">正在打开神秘盲盒...</p>
+            </div>
+            
+            <div class="card box-open-animation" id="box-open-scene">
+                <h1>✨ 恭喜获得 <span class="title-decoration left">🎉</span><span class="title-decoration right">🏆</span></h1>
+                <div class="result-icon">🎉</div>
+                <div class="result-prize" id="revealed-prize"></div>
+                <button class="btn btn-primary" onclick="showFinalResult()">太棒了!</button>
+            </div>
+            
+            <div class="card result-page" id="result-scene">
+                <div id="win-result" style="display:none;">
+                    <div class="result-icon">🎉</div>
+                    <h2 class="result-title">恭喜您!</h2>
+                    <div class="result-prize">
+                        <div id="prize-category"></div>
+                        <div id="prize-name"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="handleContinue()">确定</button>
+                </div>
+                <div id="lose-result" style="display:none;">
+                    <div class="result-icon">🍀</div>
+                    <h2 class="result-title">未中奖</h2>
+                    <p class="result-encourage" id="encourage-text"></p>
+                    <button class="btn btn-primary" onclick="handleContinue()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 管理员登录弹窗 -->
+    <div class="modal" id="admin-login-modal">
+        <div class="modal-content">
+            <h3>🔐 管理员登录</h3>
+            <div class="input-group">
+                <input type="password" id="admin-password" placeholder="请输入管理员密码">
+            </div>
+            <button class="btn btn-primary" onclick="verifyAdminPassword()">登录</button>
+            <button class="btn btn-secondary" onclick="closeAdminLogin()">取消</button>
+        </div>
+    </div>
+    
+    <!-- 管理员面板 -->
+    <div class="admin-panel" id="admin-panel">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>📊 管理后台</h2>
+                <button class="close-btn" onclick="closeAdminPanel()">✕</button>
+            </div>
+            
+            <div class="admin-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-total">179</div>
+                    <div class="stat-label">总抽奖次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-used">0</div>
+                    <div class="stat-label">已使用次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-winners">0</div>
+                    <div class="stat-label">中奖人数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-remaining">121</div>
+                    <div class="stat-label">剩余奖品</div>
+                </div>
+            </div>
+            
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('winners')">中奖名单</button>
+                <button class="tab-btn" onclick="switchTab('losers')">未中奖</button>
+            </div>
+            
+            <div class="tab-content active" id="tab-winners">
+                <div class="prize-section">
+                    <h3>🎁 泡泡玛特盲盒 ×11</h3>
+                    <div class="prize-list" id="list-boluo"></div>
+                </div>
+                <div class="prize-section">
+                    <h3>🧸 泡泡玛特萌粒 ×20</h3>
+                    <div class="prize-list" id="list-mengg"></div>
+                </div>
+                <div class="prize-section">
+                    <h3>🎀 挂件 ×30</h3>
+                    <div class="prize-list" id="list-gua"></div>
+                </div>
+                <div class="prize-section">
+                    <h3>🛍️ 购物袋 ×10</h3>
+                    <div class="prize-list" id="list-gouwu"></div>
+                </div>
+                <div class="prize-section">
+                    <h3>🌱 迷你植物罐 ×20</h3>
+                    <div class="prize-list" id="list-zhiwu"></div>
+                </div>
+                <div class="prize-section">
+                    <h3>📒 线圈本 ×10</h3>
+                    <div class="prize-list" id="list-quanxian"></div>
+                </div>
+                <div class="prize-section">
+                    <h3>☕ 瑞幸咖啡券 ×20</h3>
+                    <div class="prize-list" id="list-kafei"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-losers">
+                <div class="prize-list" id="list-losers"></div>
+            </div>
+            
+            <button class="export-btn" onclick="exportCSV()">📥 导出CSV</button>
+            <button class="btn btn-secondary" onclick="resetLottery()" style="margin-top:10px;">🔄 重置抽奖</button>
+        </div>
+    </div>
+
+
+    <script>
+    // ========== 数据定义 ==========
+    
+    // 重复幸运数字映射
+    const DUPLICATE_NUMBERS = {
+        "1": ["Quella Fang", "Haoyu Liu", "Jessie Zhou", "Theresa Shi"],
+        "3": ["Jianing Tang", "Kairos Wu", "Lydia Yang"],
+        "4": ["Yuki Fan"],
+        "6": ["Lesley Wang", "Owen Zhong", "Sonja Pan"],
+        "7": ["Strawberry Zhang"],
+        "11": ["Elvis Song", "Layla Lin", "Kell Huang", "Liv Song", "Linn Liu"],
+        "12": ["Joan Ye", "Ophelia Zhang", "Rayne Zheng"],
+        "13": ["Della Huang", "Marlene Liang"],
+        "16": ["Aster Li", "Bennett Qiu"],
+        "17": ["Crystal Xie", "Mavis Meng"],
+        "18": ["Carotine Ying", "Jara Yao", "Loretta Liu", "Ricky Jiang", "Pansy Zhang"],
+        "19": ["Drake Gao", "Yooty Jiang"],
+        "22": ["Lay Wang", "Rowan Zu", "Sheena Wang"],
+        "27": ["Fairy Zhu", "Kate Zhou", "Lucina Wei", "Pansy Zhang", "Serena Sun", "Wimor Wang"],
+        "28": ["Zoey Lin", "Lira Wu"],
+        "30": ["Maggie Zhang", "Melissa Zhang"],
+        "31": ["Aaron Shan", "Cici Cui", "Zora Zhang"],
+        "35": ["Leila Yu", "Rain Yao"],
+        "37": ["Zora Zhang", "Keke Muzi"],
+        "40": ["Stan Li", "Elodie Jiang"],
+        "41": ["Libby Zhu", "Shiwen Wang", "lenna Gao"],
+        "42": ["Amber Gan", "Xenia Zheng"],
+        "46": ["Quinn Zhang", "Raina Gao"],
+        "47": ["Carotine Ying"],
+        "49": ["Vera Wang", "zhang Nicolie"],
+        "50": ["Melo Zhang", "Sookie Yang"],
+        "52": ["Shirley Hu", "Layla Lin"],
+        "53": ["Cally Ye", "Cora Liu", "Dyjay Ye", "Nash Wang"],
+        "54": ["Yatoo Dai", "Tiana Luo"],
+        "55": ["Jacqueline Min", "Josefine Wang", "Sloane Zhang"],
+        "59": ["Ansel He", "Fern Yu", "Kaka Wang", "Lilia Du"],
+        "60": ["Mina Zhao", "Yuki Fan"],
+        "64": ["Ava Sheng", "Nora Wang", "Yuri Zhang"],
+        "66": ["Canli Yang", "Ivy Gu", "Pharos Li"],
+        "67": ["Leena Zhang", "Zoey Lin"],
+        "68": ["Hanna Lv", "Yana Lai"],
+        "70": ["Cong Bao", "Eva Xu", "Kylie Shang", "Sirius Ye"],
+        "71": ["Janee Huang", "Kiki Jiang"],
+        "72": ["Estelle Li", "Ponny Pan"],
+        "73": ["Carmen Yang", "Nancy Yang", "Shuaiyu Liu", "Yisong Xu", "Yooty Jiang"],
+        "74": ["Aurora Mao", "Shiwei Yang"],
+        "75": ["Aimee Zhang", "Lacey Lin"],
+        "79": ["Chee Ma", "Grace Shen", "Tinna Tong", "Zihui Zhao"],
+        "80": ["Fine Xu", "Ni Chen", "Stella Shao"],
+        "86": ["Amy Wang", "Chaoyu Wang", "Lexi Lai", "Mancy Lin"],
+        "87": ["Ana Zhang", "Haly Gong", "Linn Liu"],
+        "88": ["Cent Zheng", "Sia Xia"],
+        "89": ["Enson Hu", "Shelly Zhang"],
+        "90": ["Ulrica Chen", "Winko Lei", "Yutong Pi"],
+        "93": ["Evelyn Zhang", "Faye Fan", "Liora Jiang"],
+        "99": ["Hepton Li", "Naomi Lu"]
+    };
+
+    // 姓名到幸运数字的映射（163人）
+    // 双参加的人存为数组：[线上号码, 线下号码]
+    const NAME_TO_NUMBER = {
+        // 线上单次参与（145人）
+        "Aaron Shan": 31,
+        "Aimee Zhang": 75,
+        "Amber Gan": 42,
+        "Amy Wang": 86,
+        "Ansel He": 59,
+        "Aster Li": 16,
+        "Aurora Mao": 74,
+        "Ava Sheng": 64,
+        "Bennett Qiu": 16,
+        "Bilie Fan": 5,
+        "Cally Ye": 53,
+        "Canli Yang": 66,
+        "Carmen Yang": 73,
+        "Cent Zheng": 88,
+        "Chaoyu Wang": 86,
+        "Chee Ma": 79,
+        "Chu Liu": 9,
+        "Cici Cui": 31,
+        "Cong Bao": 70,
+        "Connie Li": 32,
+        "Crystal Xie": 17,
+        "Daisy Cheng": 45,
+        "Della Huang": 13,
+        "Drake Gao": 19,
+        "Dyjay Ye": 53,
+        "Elodie Jiang": 40,
+        "Elvis Song": 11,
+        "Enson Hu": 89,
+        "Estelle Li": 72,
+        "Eva Xu": 70,
+        "Evelyn Zhang": 93,
+        "Fairy Zhu": 27,
+        "Faye Fan": 93,
+        "Fern Yu": 59,
+        "Fine Xu": 80,
+        "Freya He": 84,
+        "Grace Shen": 79,
+        "Haly Gong": 87,
+        "Hanna Lv": 68,
+        "Haoyu Liu": 1,
+        "Hepton Li": 99,
+        "Isabella Zhong": 8,
+        "Ivy Gu": 66,
+        "Jacqueline Min": 55,
+        "Janee Huang": 71,
+        "Jara Yao": 18,
+        "Jeremy Jin": 94,
+        "Jessie Zhou": 1,
+        "Jianing Tang": 3,
+        "Jiaye Jin": 44,
+        "Joan Ye": 12,
+        "Josefine Wang": 55,
+        "Judy Chen": 24,
+        "Kairos Wu": 3,
+        "Kaka Wang": 59,
+        "Kamille Yao": 51,
+        "Kate Zhou": 27,
+        "Katherine Gu": 98,
+        "Keke Muzi": 37,
+        "Kell Huang": 11,
+        "Kiki Jiang": 71,
+        "Kylie Shang": 70,
+        "Lacey Lin": 75,
+        "Laural Dai": 26,
+        "Lay Wang": 22,
+        "Leena Zhang": 67,
+        "Lesley Wang": 6,
+        "Levana Lin": 96,
+        "Lexi Lai": 86,
+        "Libby Zhu": 41,
+        "Lilia Du": 59,
+        "Liora Jiang": 93,
+        "Lira Wu": 28,
+        "Liv Song": 11,
+        "Loretta Liu": 18,
+        "Lucina Wei": 27,
+        "Lucy Liu": 57,
+        "Mabel Zhuo": 61,
+        "Maggie Zhang": 30,
+        "Mancy Lin": 86,
+        "Maris Xiang": 82,
+        "Marlene Liang": 13,
+        "Mavis Meng": 17,
+        "Maxwell Guo": 14,
+        "Melissa Zhang": 30,
+        "Melo Zhang": 50,
+        "Mikael Peng": 58,
+        "Mina Zhao": 60,
+        "Mindy Tang": 69,
+        "Miyuki Mao": 39,
+        "Money Qian": 36,
+        "Nancy Yang": 73,
+        "Naomi Lu": 99,
+        "Nash Wang": 53,
+        "Ni Chen": 80,
+        "Nora Wang": 64,
+        "Ophelia Zhang": 12,
+        "Owen Zhong": 6,
+        "Pharos Li": 66,
+        "Ponny Pan": 72,
+        "Quella Fang": 1,
+        "Quinn Zhang": 46,
+        "Rain Yao": 35,
+        "Raina Gao": 46,
+        "Raye Ma": 95,
+        "Rayne Zheng": 12,
+        "Ricky Jiang": 18,
+        "Roseanne Xing": 21,
+        "Rowan Zu": 22,
+        "Salawa Zou": 63,
+        "Samanta Chen": 83,
+        "Sandy Zhou": 23,
+        "Selriya Shao": 10,
+        "Serena Sun": 27,
+        "Sheena Wang": 22,
+        "Shelly Zhang": 89,
+        "Shirley Hu": 52,
+        "Shiwei Yang": 74,
+        "Shiwen Wang": [41, 41],
+        "Shuaiyu Liu": 73,
+        "Sia Xia": 88,
+        "Sida Zhang": 43,
+        "Sirius Ye": 70,
+        "Sloane Zhang": 55,
+        "Sonja Pan": 6,
+        "Sookie Yang": 50,
+        "Sophie Sun": 77,
+        "Stacey Yu": 76,
+        "Stacy Jin": 91,
+        "Stan Li": 40,
+        "Sukie Chen": 38,
+        "Theresa Shi": 1,
+        "Tiana Luo": 54,
+        "Tinna Tong": 79,
+        "Ulrica Chen": 90,
+        "Vera Wang": 49,
+        "Wimor Wang": 27,
+        "Winko Lei": 90,
+        "Xenia Zheng": 42,
+        "Yana Lai": 68,
+        "Yao Ma": 25,
+        "Yatoo Dai": 54,
+        "Yisong Xu": 73,
+        "Yufan Zheng": 34,
+        "Yuri Zhang": 64,
+        "Zihui Zhao": 79,
+        "lenna Gao": 41,
+        "zhang Nicolie": 49,
+
+        // 双参加的人（15人）- 存为数组，两个号码都能用
+        "Ana Zhang": [87, 50],
+        "Carotine Ying": [47, 18],
+        "Cora Liu": [53, 15],
+        "Layla Lin": [11, 52],
+        "Leila Yu": [35, 35],
+        "Linn Liu": [87, 11],
+        "Lydia Yang": [3, 11],
+        "Pansy Zhang": [27, 18],
+        "Stella Shao": [97, 80],
+        "Strawberry Zhang": [7, 7],
+        "Yooty Jiang": [73, 19],
+        "Yuki Fan": [4, 60],
+        "Yutong Pi": [90, 40],
+        "Zoey Lin": [28, 67],
+        "Zora Zhang": [31, 37]
+    };
+
+    // 双参加名单（2次机会，16人）
+    const DOUBLE_CHANCE_NAMES = [
+        "Ana Zhang", "Carotine Ying", "Cora Liu", "Layla Lin", "Leila Yu",
+        "Linn Liu", "Lydia Yang", "Pansy Zhang", "Shiwen Wang", "Stella Shao",
+        "Strawberry Zhang", "Yooty Jiang", "Yuki Fan", "Yutong Pi", "Zoey Lin", "Zora Zhang"
+    ];
+
+    // 仅线下名单（1次机会）
+    const OFFLINE_ONLY_NAMES = ["Fairy Zhu", "Maggie Zhang", "Sandy Zhou"];
+
+    // 礼品池
+    const PRIZES = {
+        "泡泡玛特盲盒": ["草莓牛奶饼干", "热狗", "赛马越春", "金运摇来", "小哈欠", "蓝莓包", "右手的绷带", "马戏团", "抓到你了", "座钟", "诗人"],
+        "泡泡玛特萌粒": ["MOLLY-冰糖葫芦", "星星人-趴趴小猪", "小甜豆-藤萝紫", "MOLLY-大耳狗勾", "PUCKY-繁星漫游", "Zsiga-纯白梦境", "DIMOO-狐狸坐坐", "PINO JELLY-软糖小熊", "HACIPUPU-嘤嘤奶狗", "小甜豆-柠檬香草", "LUBUBU-迷你怪兽", "PUCKY-鳄鱼抱抱", "HACIPUPU-小吃货", "SWEATBEAN-报喜锦鲤", "DIMOO-菠萝包", "PINO JELLY-牛角包", "SKULLPANDA-吐司", "ZIMOMO-冰川蓝", "LABUBU-飞碟", "小甜豆-趴趴考拉"],
+        "挂件": ["榴莲披萨", "小鱼企鹅", "芝士披萨", "灰色企鹅", "奶昔企鹅", "企鹅螃蟹", "白色小猫", "薯条企鹅", "毛绒西红柿", "咖啡小熊", "猪猪虾仁烧卖", "花生公仔", "西红柿公仔", "甜甜圈小猫", "牛角包豚豚", "甜筒小熊冰淇淋", "快乐荷包蛋", "元宝小猫", "糖葫芦小猫", "可爱毛绒元宝", "粉色有钱花", "蓝色苹果购物袋", "粉色草莓购物袋", "柠檬公仔", "可爱萝卜", "可爱洋葱", "柚子叶", "可爱卡通苹果", "苹果小猫", "未来可期花朵挂绳"],
+        "购物袋": ["涂鸦插画", "蓝色-艺术家小狗", "红色-苹果西高地", "白色小狗", "可爱小狗", "卡通西红柿", "绿色-春日苹果", "格纹-苹果小狗", "黄色-音乐小狗", "白色-红色苹果"],
+        "迷你植物罐": ["草莓", "草莓", "樱桃萝卜", "樱桃萝卜", "太阳花", "太阳花", "向日葵", "向日葵", "幸运草", "幸运草", "矢车菊", "矢车菊", "凤仙花", "凤仙花", "康乃馨", "康乃馨", "含羞草", "含羞草", "南瓜", "南瓜"],
+        "线圈本": ["斑点米白色小猫", "斑点棕色星星小狗", "蛋糕小狗", "腊肠小狗", "爱心芮芮兔", "我美式", "小兔子", "棕色猫猫", "记仇本", "泳圈小狗"],
+        "瑞幸咖啡券": ["苹果C冰茶", "苹果C冰茶", "苹果C冰茶", "苹果C冰茶", "苹果C冰茶", "生椰拿铁", "生椰拿铁", "生椰拿铁", "生椰拿铁", "生椰拿铁", "小黄油美式", "小黄油美式", "小黄油美式", "小黄油美式", "小黄油美式", "橙C美式", "橙C美式", "橙C美式", "橙C美式", "橙C美式"]
+    };
+
+    // 奖品分类映射
+    const PRIZE_CATEGORY = {};
+    Object.entries(PRIZES).forEach(([category, items]) => {
+        items.forEach(item => {
+            PRIZE_CATEGORY[item] = category;
+        });
+    });
+
+    // ========== 确定性随机数生成器 ==========
+    class SeededRandom {
+        constructor(seed) {
+            this.seed = seed;
+        }
+        
+        next() {
+            this.seed = (this.seed * 1103515245 + 12345) & 0x7fffffff;
+            return this.seed / 0x7fffffff;
+        }
+        
+        nextInt(max) {
+            return Math.floor(this.next() * max);
+        }
+        
+        shuffle(array) {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = this.nextInt(i + 1);
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        }
+    }
+
+    // 固定种子生成抽奖结果
+    function generateLotteryResults() {
+        const rng = new SeededRandom(20240101);
+        
+        // 生成179个抽奖机会的有序列表
+        const entries = [];
+        
+        // 144人线上1次
+        Object.entries(NAME_TO_NUMBER).forEach(([name, number]) => {
+            if (!DOUBLE_CHANCE_NAMES.includes(name) && !OFFLINE_ONLY_NAMES.includes(name)) {
+                entries.push({ name, instance: 1, number });
+            }
+        });
+        
+        // 15人双参加2次（instance 1为线上号码，instance 2为线下号码）
+        DOUBLE_CHANCE_NAMES.forEach(name => {
+            const numbers = NAME_TO_NUMBER[name]; // 数组 [线上, 线下]
+            entries.push({ name, instance: 1, number: numbers[0] }); // 线上号码
+            entries.push({ name, instance: 2, number: numbers[1] }); // 线下号码
+        });
+        
+        // 3人仅线下1次
+        OFFLINE_ONLY_NAMES.forEach(name => {
+            entries.push({ name, instance: 1, number: NAME_TO_NUMBER[name] });
+        });
+        
+        // Shuffle抽奖顺序
+        const shuffledEntries = rng.shuffle(entries);
+        
+        // 构建奖品池
+        const prizePool = [];
+        Object.entries(PRIZES).forEach(([category, items]) => {
+            items.forEach(item => {
+                prizePool.push(item);
+            });
+        });
+        
+        // 58个感谢参与
+        for (let i = 0; i < 58; i++) {
+            prizePool.push("感谢参与");
+        }
+        
+        // Shuffle奖品池
+        const shuffledPrizes = rng.shuffle(prizePool);
+        
+        // 分配结果
+        const results = {};
+        shuffledEntries.forEach((entry, index) => {
+            const key = `${entry.name}_${entry.instance}`;
+            results[key] = {
+                prize: shuffledPrizes[index],
+                won: shuffledPrizes[index] !== "感谢参与",
+                drawn: false  // 标记是否已抽取
+            };
+        });
+        
+        return results;
+    }
+
+    // ========== 全局状态 ==========
+    let LOTTERY_RESULTS = null;
+    let currentUser = null;
+    let remainingChances = 0;
+    let lastResult = null;
+
+
+    // ========== 初始化 ==========
+    function init() {
+        // 从localStorage恢复结果或生成新的
+        const saved = localStorage.getItem('lottery_results');
+        if (saved) {
+            LOTTERY_RESULTS = JSON.parse(saved);
+        } else {
+            LOTTERY_RESULTS = generateLotteryResults();
+            saveResults();
+        }
+        updateStats();
+        
+        // 初始化浮动装饰
+        initFloatingDecorations();
+    }
+    
+    // ========== 浮动装饰初始化 ==========
+    function initFloatingDecorations() {
+        const container = document.getElementById('floatingDecorations');
+        if (!container) return;
+        
+        // 礼物emoji配置
+        const giftEmojisList = ['🎁', '🎀', '🧸', '💎', '🎪', '🏆', '🌟', '💝', '🦄', '🍭'];
+        
+        // 其他装饰元素
+        const decorations = ['✨', '💫', '🌟', '💖', '💗', '💕', '🎀', '🎊', '🎉', '🏆'];
+        const ribbons = ['🎀', '🎗️', '🎖️'];
+        
+        // 添加礼物emoji浮动元素
+        const giftEmojis = ['🎁', '🎀', '🧸', '💎', '🎪', '🏆', '🌟', '💝', '🦄', '🍭'];
+        giftEmojis.forEach((emoji, index) => {
+            const item = document.createElement('div');
+            item.className = 'float-item gift-float';
+            item.textContent = emoji;
+            item.style.left = (5 + Math.random() * 85) + '%';
+            item.style.top = (5 + Math.random() * 85) + '%';
+            item.style.animationDelay = (index * 0.7) + 's';
+            item.style.animationDuration = (6 + Math.random() * 4) + 's';
+            container.appendChild(item);
+        });
+        
+        // 添加祝福文字浮动元素（独立位置）
+        const blessings = ['好运连连', '甜甜蜜蜜', '可爱满分', '闪闪发光', '惊喜不断', '幸运之星', '心想事成', '满心欢喜', '奇妙相遇', '生活甜甜'];
+        blessings.forEach((text, index) => {
+            const item = document.createElement('div');
+            item.className = 'float-item blessing-float';
+            item.textContent = text;
+            item.style.left = (5 + Math.random() * 80) + '%';
+            item.style.top = (5 + Math.random() * 85) + '%';
+            item.style.animationDelay = (index * 1.1) + 's';
+            item.style.animationDuration = (8 + Math.random() * 4) + 's';
+            container.appendChild(item);
+        });
+        
+        // 添加闪烁星星
+        for (let i = 0; i < 12; i++) {
+            const star = document.createElement('div');
+            star.className = 'float-item twinkle-star';
+            star.textContent = ['⭐', '✨', '💫', '🌟'][Math.floor(Math.random() * 4)];
+            star.style.left = (Math.random() * 90 + 5) + '%';
+            star.style.top = (Math.random() * 90 + 5) + '%';
+            star.style.animationDelay = (Math.random() * 2) + 's';
+            container.appendChild(star);
+        }
+        
+        // 添加爱心飘动
+        for (let i = 0; i < 8; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'float-item floating-heart';
+            heart.textContent = ['💖', '💗', '💕', '❤️'][Math.floor(Math.random() * 4)];
+            heart.style.left = (Math.random() * 85 + 5) + '%';
+            heart.style.top = (Math.random() * 85 + 5) + '%';
+            heart.style.animationDelay = (Math.random() * 3) + 's';
+            heart.style.fontSize = (14 + Math.random() * 8) + 'px';
+            container.appendChild(heart);
+        }
+        
+        // 添加彩带
+        for (let i = 0; i < 6; i++) {
+            const ribbon = document.createElement('div');
+            ribbon.className = 'float-item ribbon';
+            ribbon.textContent = ribbons[Math.floor(Math.random() * ribbons.length)];
+            ribbon.style.left = (Math.random() * 85 + 5) + '%';
+            ribbon.style.top = (Math.random() * 85 + 5) + '%';
+            ribbon.style.animationDelay = (Math.random() * 2) + 's';
+            container.appendChild(ribbon);
+        }
+        
+        // 添加闪光粒子
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'float-item sparkle-particle';
+            particle.style.left = (Math.random() * 90 + 5) + '%';
+            particle.style.top = (Math.random() * 90 + 5) + '%';
+            particle.style.animationDelay = (Math.random() * 4) + 's';
+            particle.style.width = (4 + Math.random() * 6) + 'px';
+            particle.style.height = particle.style.width;
+            container.appendChild(particle);
+        }
+    }
+    
+    // ========== 抽奖动画粒子 ==========
+    function initLotteryParticles() {
+        const container = document.getElementById('lotteryParticles');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        const particles = ['⭐', '🦷', '🎀', '✨', '💫', '🌟', '💎', '🎊'];
+        
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'lottery-particle';
+            particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+            particle.style.left = (Math.random() * 100) + '%';
+            particle.style.top = (Math.random() * 100) + '%';
+            particle.style.animationDelay = (Math.random() * 3) + 's';
+            particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    function saveResults() {
+        localStorage.setItem('lottery_results', JSON.stringify(LOTTERY_RESULTS));
+    }
+
+    // ========== 页面切换 ==========
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // ========== 表单提交 ==========
+    function handleSubmit() {
+        const name = document.getElementById('input-name').value.trim();
+        const number = document.getElementById('input-number').value.trim();
+        
+        // 清除错误
+        document.getElementById('name-error').classList.remove('show');
+        document.getElementById('number-error').classList.remove('show');
+        
+        // 验证姓名
+        if (!name) {
+            document.getElementById('name-error').textContent = '请输入姓名';
+            document.getElementById('name-error').classList.add('show');
+            return;
+        }
+        
+        // 检查姓名是否存在于映射中
+        if (!(name in NAME_TO_NUMBER)) {
+            document.getElementById('name-error').textContent = '未找到该姓名，请确认格式正确（如 Cora Liu）';
+            document.getElementById('name-error').classList.add('show');
+            return;
+        }
+        
+        // 验证幸运数字
+        if (!number) {
+            document.getElementById('number-error').textContent = '请输入幸运数字';
+            document.getElementById('number-error').classList.add('show');
+            return;
+        }
+        
+        const num = parseInt(number);
+        if (num < 1 || num > 99) {
+            document.getElementById('number-error').textContent = '幸运数字必须在1-99之间';
+            document.getElementById('number-error').classList.add('show');
+            return;
+        }
+        
+        // 验证号码匹配（支持数组形式的多个号码）
+        const expectedNumbers = NAME_TO_NUMBER[name];
+        const numbers = Array.isArray(expectedNumbers) ? expectedNumbers : [expectedNumbers];
+        if (!numbers.includes(num)) {
+            // 提示正确的号码
+            const uniqueNumbers = [...new Set(numbers)];
+            document.getElementById('number-error').textContent = '幸运数字不匹配，请确认后重新输入';
+            document.getElementById('number-error').classList.add('show');
+            return;
+        }
+        
+        // 姓名加号码已唯一，直接验证通过
+        validateAndProceed(name);
+    }
+
+    function validateAndProceed(name) {
+        // 计算剩余抽奖机会（检查 drawn 标记）
+        let usedCount = 0;
+        if (LOTTERY_RESULTS[`${name}_1`] && LOTTERY_RESULTS[`${name}_1`].drawn) usedCount++;
+        if (LOTTERY_RESULTS[`${name}_2`] && LOTTERY_RESULTS[`${name}_2`].drawn) usedCount++;
+        
+        let totalChances = 1;
+        if (DOUBLE_CHANCE_NAMES.includes(name)) totalChances = 2;
+        if (OFFLINE_ONLY_NAMES.includes(name)) totalChances = 1;
+        
+        remainingChances = totalChances - usedCount;
+        
+        if (remainingChances <= 0) {
+            // 已经抽过奖，直接显示结果
+            currentUser = name;
+            showEndPage();
+            return;
+        }
+        
+        currentUser = name;
+        
+        // 显示欢迎页
+        document.getElementById('welcome-name').textContent = name;
+        document.getElementById('total-chances').textContent = totalChances;
+        
+        const remainingInfo = document.getElementById('remaining-info');
+        const firstDrawBtn = document.getElementById('btn-first-draw');
+        if (usedCount > 0 && remainingChances > 0) {
+            // 已经用过1次，还有第2次机会
+            remainingInfo.style.display = 'block';
+            document.getElementById('remaining-text').textContent = `您已使用 ${usedCount} 次，还剩 ${remainingChances} 次！`;
+            firstDrawBtn.style.display = 'none'; // 隐藏上面的"立即抽奖"
+        } else {
+            remainingInfo.style.display = 'none';
+            firstDrawBtn.style.display = ''; // 第一次进，显示"立即抽奖"
+        }
+        
+        showPage('page-welcome');
+    }
+
+    // ========== 抽奖流程 ==========
+    function startLottery() {
+        showPage('page-animation');
+        
+        // 初始化抽奖粒子
+        initLotteryParticles();
+        
+        const animation = document.querySelector('.lottery-animation');
+        const boxScene = document.getElementById('box-open-scene');
+        const resultScene = document.getElementById('result-scene');
+        const gachaMachine = document.getElementById('gacha-machine');
+        const mysteryBox = document.getElementById('mystery-box');
+        
+        animation.style.display = 'block';
+        boxScene.classList.remove('active');
+        resultScene.classList.remove('active');
+        
+        // 显示盲盒机，隐藏盲盒
+        gachaMachine.style.display = 'block';
+        mysteryBox.style.display = 'none';
+        
+        // 重置结果页显示状态
+        document.getElementById('win-result').style.display = 'none';
+        document.getElementById('lose-result').style.display = 'none';
+        document.getElementById('revealed-prize').textContent = '';
+        
+        // 找到下一个可用实例（检查 drawn 标记）
+        let instance = 1;
+        if (LOTTERY_RESULTS[`${currentUser}_1`] && LOTTERY_RESULTS[`${currentUser}_1`].drawn) instance = 2;
+        
+        lastResult = LOTTERY_RESULTS[`${currentUser}_${instance}`];
+        
+        // 动画结束后显示结果
+        setTimeout(() => {
+            animation.style.display = 'none';
+            boxScene.classList.add('active');
+            
+            // 隐藏盲盒机，显示盲盒
+            gachaMachine.style.display = 'none';
+            mysteryBox.style.display = 'block';
+            
+            // 显示奖品（同时显示类别和名称）
+            const revealCategory = PRIZE_CATEGORY[lastResult.prize] || '';
+            if (lastResult.won) {
+                document.getElementById('revealed-prize').innerHTML = 
+                    `<div class="prize-category">${revealCategory}</div><div class="prize-name">${lastResult.prize}</div>`;
+            } else {
+                document.getElementById('revealed-prize').textContent = lastResult.prize;
+            }
+            
+            // 创建增强闪光效果
+            createEnhancedSparkles();
+        }, 2000);
+    }
+    
+    function showNormalResult() {
+        const resultScene = document.getElementById('result-scene');
+        resultScene.classList.add('active');
+        
+        if (lastResult.won) {
+            document.getElementById('win-result').style.display = 'block';
+            document.getElementById('lose-result').style.display = 'none';
+            const category = PRIZE_CATEGORY[lastResult.prize] || '';
+            document.getElementById('prize-category').textContent = `类别：${category}`;
+            document.getElementById('prize-category').className = 'prize-category';
+            // 咖啡券显示口味+提醒联系Cora Liu选择冰度甜度
+            if (category === "瑞幸咖啡券") {
+                document.getElementById('prize-name').innerHTML = `口味：${lastResult.prize}<br><span style="color:#ff8e53;font-size:0.9rem;">☕ 请联系 Cora Liu 选择冰度/甜度</span>`;
+            } else {
+                document.getElementById('prize-name').textContent = `奖品：${lastResult.prize}`;
+            }
+            document.getElementById('prize-name').className = 'prize-name';
+            // 增强的中奖庆祝效果
+            createEnhancedConfetti();
+            createIPConfetti();
+        } else {
+            document.getElementById('win-result').style.display = 'none';
+            document.getElementById('lose-result').style.display = 'block';
+            const encourages = [
+                "再接再厉，下次一定中奖！🍀",
+                "运气不够，实力来凑！💪",
+                "差一点就中了！✨",
+                "好事多磨，继续加油！🌟",
+                "没中奖也很棒，参与就是胜利！🎉"
+            ];
+            document.getElementById('encourage-text').textContent = 
+                encourages[Math.floor(Math.random() * encourages.length)];
+        }
+        
+        // 标记为已抽取并保存
+        lastResult.drawn = true;
+        saveResults();
+        
+        remainingChances--;
+        updateStats();
+    }
+    
+    function showFinalResult() {
+        document.getElementById('box-open-scene').classList.remove('active');
+        showNormalResult();
+    }
+
+    function handleContinue() {
+        // 隐藏结果场景
+        const resultScene = document.getElementById('result-scene');
+        resultScene.classList.remove('active');
+        
+        if (remainingChances > 0) {
+            // 还有机会，返回欢迎页并显示剩余信息
+            document.getElementById('remaining-info').style.display = 'block';
+            document.getElementById('remaining-text').textContent = `还有第2次抽奖机会！`;
+            document.getElementById('btn-first-draw').style.display = 'none'; // 隐藏上面的按钮
+            showPage('page-welcome');
+        } else {
+            // 没有机会了，显示结束页面
+            showEndPage();
+        }
+    }
+    
+    function showEndPage() {
+        // 检查是否中过奖
+        let wonAny = false;
+        let wonPrizes = [];
+        for (let i = 1; i <= 2; i++) {
+            const key = `${currentUser}_${i}`;
+            if (LOTTERY_RESULTS[key] && LOTTERY_RESULTS[key].drawn && LOTTERY_RESULTS[key].won) {
+                wonAny = true;
+                const prize = LOTTERY_RESULTS[key].prize;
+                const category = PRIZE_CATEGORY[prize] || '';
+                
+                // 处理咖啡券的显示
+                if (category === "瑞幸咖啡券") {
+                    wonPrizes.push(`${prize}（请联系Cora Liu选择冰度/甜度）`);
+                } else {
+                    wonPrizes.push(category ? `${category} - ${prize}` : prize);
+                }
+            }
+        }
+        
+        // 创建结束页面
+        const container = document.querySelector('.container');
+        let endPage = document.getElementById('page-end');
+        
+        if (!endPage) {
+            endPage = document.createElement('div');
+            endPage.id = 'page-end';
+            endPage.className = 'page';
+            
+            let prizeHtml = '';
+            if (wonAny) {
+                prizeHtml = `
+                    <div style="margin-bottom:16px;">
+                        ${wonPrizes.map(p => `<div style="color:#ff6b6b;font-weight:600;font-size:18px;margin:4px 0;">${p}</div>`).join('')}
+                    </div>
+                    <p style="color:#ff6b6b;font-weight:600;font-size:18px;margin-bottom:24px;">请于5月12日（周二）中午12:00-13:00在三楼NETHERLANDS会议室领取礼品 🎁</p>
+                `;
+            }
+            
+            endPage.innerHTML = `
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:80px;margin-bottom:20px;">🎊</div>
+                    <h1 style="margin-bottom:16px;">感谢参与!</h1>
+                    <p style="color:#666;margin-bottom:16px;">您已用完所有抽奖机会</p>
+                    ${prizeHtml}
+                    <button class="btn btn-primary" onclick="returnToForm()">返回首页</button>
+                </div>
+            `;
+            container.appendChild(endPage);
+        } else {
+            // 更新已有结束页面的奖品信息
+            const card = endPage.querySelector('.card');
+            let prizeHtml = '';
+            if (wonAny) {
+                prizeHtml = `
+                    <div style="margin-bottom:16px;">
+                        ${wonPrizes.map(p => `<div style="color:#ff6b6b;font-weight:600;font-size:18px;margin:4px 0;">${p}</div>`).join('')}
+                    </div>
+                    <p style="color:#ff6b6b;font-weight:600;font-size:18px;margin-bottom:24px;">请于5月12日（周二）中午12:00-13:00在三楼NETHERLANDS会议室领取礼品 🎁</p>
+                `;
+            }
+            // 替换原来的内容（保留前面的部分，只更新奖品区）
+            const oldPrizeDiv = card.querySelector('div[style*="margin-bottom:16px"]');
+            if (oldPrizeDiv) {
+                oldPrizeDiv.outerHTML = prizeHtml;
+            }
+        }
+        
+        showPage('page-end');
+    }
+    
+    function returnToForm() {
+        // 清除输入并返回表单页
+        document.getElementById('input-name').value = '';
+        document.getElementById('input-number').value = '';
+        currentUser = null;
+        showPage('page-form');
+        
+        // 移除结束页面以免影响后续逻辑
+        const endPage = document.getElementById('page-end');
+        if (endPage) endPage.remove();
+    }
+
+    // ========== 增强特效 ==========
+    function createConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti';
+        document.body.appendChild(container);
+        
+        const colors = ['#ff6b6b', '#ff8e53', '#ffd700', '#4CAF50', '#2196F3', '#9C27B0', '#ff69b4', '#00CED1'];
+        
+        for (let i = 0; i < 80; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDelay = Math.random() * 0.8 + 's';
+            piece.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            piece.style.width = (6 + Math.random() * 8) + 'px';
+            piece.style.height = (6 + Math.random() * 8) + 'px';
+            container.appendChild(piece);
+        }
+        
+        setTimeout(() => container.remove(), 4000);
+    }
+    
+    // 增强的五彩纸屑效果
+    function createEnhancedConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti';
+        document.body.appendChild(container);
+        
+        // 更多颜色和样式
+        const colors = ['#ff6b6b', '#ff8e53', '#ffd700', '#ff69b4', '#ff1493', '#00CED1', '#9370DB', '#FFB6C1'];
+        const shapes = ['50%', '2px', '0', '30%', '10px'];
+        
+        for (let i = 0; i < 120; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDelay = Math.random() * 1 + 's';
+            piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+            piece.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
+            piece.style.width = (5 + Math.random() * 10) + 'px';
+            piece.style.height = (5 + Math.random() * 10) + 'px';
+            
+            // 添加旋转方向变化
+            const direction = Math.random() > 0.5 ? '1' : '-1';
+            piece.style.setProperty('--rotation-direction', direction);
+            container.appendChild(piece);
+        }
+        
+        setTimeout(() => container.remove(), 4500);
+    }
+    
+    // 礼物飘落效果
+    function createIPConfetti() {
+        const container = document.createElement('div');
+        container.className = 'ip-confetti';
+        document.body.appendChild(container);
+        
+        // 礼物相关emoji
+        const giftEmojis = ['🎁', '🎀', '🧸', '💎', '🎪', '🏆', '🌟', '💝', '🦄', '🍭', '🎊', '✨', '💫', '🎉', '💖'];
+        
+        for (let i = 0; i < 30; i++) {
+            const item = document.createElement('div');
+            item.className = 'ip-confetti-item';
+            item.textContent = giftEmojis[Math.floor(Math.random() * giftEmojis.length)];
+            item.style.left = Math.random() * 100 + '%';
+            item.style.animationDelay = (Math.random() * 1.5) + 's';
+            item.style.animationDuration = (3 + Math.random() * 2) + 's';
+            item.style.fontSize = (20 + Math.random() * 20) + 'px';
+            container.appendChild(item);
+        }
+        
+        setTimeout(() => container.remove(), 5000);
+    }
+
+    function createEnhancedSparkles() {
+        const box = document.getElementById('mystery-box');
+        if (!box) return;
+        
+        const sparkleChars = ['✨', '💫', '⭐', '🌟', '💖', '🎉', '🏆'];
+        const colors = ['gold', 'pink', 'blue', 'green'];
+        
+        for (let i = 0; i < 20; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle ' + colors[Math.floor(Math.random() * colors.length)];
+            sparkle.textContent = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
+            sparkle.style.left = (10 + Math.random() * 80) + '%';
+            sparkle.style.top = (10 + Math.random() * 80) + '%';
+            sparkle.style.animationDelay = (Math.random() * 0.5) + 's';
+            sparkle.style.fontSize = (16 + Math.random() * 16) + 'px';
+            box.appendChild(sparkle);
+        }
+        
+        setTimeout(() => {
+            box.querySelectorAll('.sparkle').forEach(s => s.remove());
+        }, 2000);
+    }
+
+    // ========== 管理员功能 ==========
+    function showAdminLogin() {
+        document.getElementById('admin-login-modal').classList.add('active');
+    }
+
+    function closeAdminLogin() {
+        document.getElementById('admin-login-modal').classList.remove('active');
+        document.getElementById('admin-password').value = '';
+    }
+
+    function verifyAdminPassword() {
+        const pwd = document.getElementById('admin-password').value;
+        if (pwd === 'admin888') {
+            closeAdminLogin();
+            showAdminPanel();
+        } else {
+            alert('密码错误');
+        }
+    }
+
+    function showAdminPanel() {
+        updateStats();
+        renderWinnerLists();
+        document.getElementById('admin-panel').classList.add('active');
+    }
+
+    function closeAdminPanel() {
+        document.getElementById('admin-panel').classList.remove('active');
+    }
+
+    function updateStats() {
+        let usedCount = 0;
+        let winnerCount = 0;
+        let totalPrizes = 121;
+        
+        Object.values(LOTTERY_RESULTS).forEach(result => {
+            if (result.prize) {
+                usedCount++;
+                if (result.won) winnerCount++;
+            }
+        });
+        
+        document.getElementById('stat-used').textContent = usedCount;
+        document.getElementById('stat-winners').textContent = winnerCount;
+        document.getElementById('stat-remaining').textContent = Math.max(0, totalPrizes - winnerCount);
+    }
+
+    function renderWinnerLists() {
+        const winnersByCategory = {};
+        const losers = [];
+        
+        Object.entries(LOTTERY_RESULTS).forEach(([key, result]) => {
+            if (!result.prize) return;
+            
+            if (result.won) {
+                const category = PRIZE_CATEGORY[result.prize];
+                if (!winnersByCategory[category]) winnersByCategory[category] = [];
+                const name = key.split('_')[0];
+                // 处理咖啡券显示完整信息
+                if (category === "瑞幸咖啡券") {
+                    winnersByCategory[category].push({ name, prize: result.prize + '（待选冰度/甜度）' });
+                } else {
+                    winnersByCategory[category].push({ name, prize: result.prize });
+                }
+            } else {
+                losers.push(key.split('_')[0]);
+            }
+        });
+        
+        // 渲染各分类
+        const categoryMap = {
+            "泡泡玛特盲盒": "list-boluo",
+            "泡泡玛特萌粒": "list-mengg",
+            "挂件": "list-gua",
+            "购物袋": "list-gouwu",
+            "迷你植物罐": "list-zhiwu",
+            "线圈本": "list-quanxian",
+            "瑞幸咖啡券": "list-kafei"
+        };
+        
+        Object.entries(categoryMap).forEach(([category, listId]) => {
+            const list = document.getElementById(listId);
+            list.innerHTML = '';
+            
+            const items = winnersByCategory[category] || [];
+            if (items.length === 0) {
+                list.innerHTML = '<div class="prize-item">暂无中奖者</div>';
+            } else {
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'prize-item';
+                    div.innerHTML = `<span>${item.name}</span><span>${item.prize}</span>`;
+                    list.appendChild(div);
+                });
+            }
+        });
+        
+        // 渲染未中奖
+        const loserList = document.getElementById('list-losers');
+        loserList.innerHTML = '';
+        if (losers.length === 0) {
+            loserList.innerHTML = '<div class="prize-item">暂无记录</div>';
+        } else {
+            losers.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'prize-item';
+                div.textContent = name;
+                loserList.appendChild(div);
+            });
+        }
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+        document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    function exportCSV() {
+        let csv = '姓名,类别,奖品,中奖时间\n';
+        
+        Object.entries(LOTTERY_RESULTS).forEach(([key, result]) => {
+            if (!result.prize) return;
+            
+            const name = key.split('_')[0];
+            const instance = key.split('_')[1];
+            
+            if (result.won) {
+                const category = PRIZE_CATEGORY[result.prize] || '';
+                csv += `"${name}","${category}","${result.prize}","${instance === '1' ? '线上' : '线下'}"\n`;
+            }
+        });
+        
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '抽奖结果_' + new Date().toLocaleDateString() + '.csv';
+        link.click();
+    }
+
+    function resetLottery() {
+        if (confirm('确定要重置抽奖吗？所有已抽取的记录将被清除！')) {
+            localStorage.removeItem('lottery_results');
+            LOTTERY_RESULTS = generateLotteryResults();
+            saveResults();
+            updateStats();
+            renderWinnerLists();
+            alert('抽奖已重置！');
+        }
+    }
+
+    // ========== 启动 ==========
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
