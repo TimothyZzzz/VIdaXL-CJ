@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TA互动世界 · 幸运抽奖</title>
     <style>
         * {
@@ -13,11 +13,16 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            /* 修复iOS 100vh问题：使用min-height配合动态计算 */
             min-height: 100vh;
+            min-height: 100dvh; /* 动态视口高度，iOS 12.1+支持 */
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
             background-attachment: fixed;
             overflow-x: hidden;
             position: relative;
+            /* 修复iOS底部安全区域 */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
         /* 背景动态渐变 */
@@ -30,6 +35,7 @@
             background: linear-gradient(-45deg, #ff9a9e, #ffc3a0, #ffafbd, #c9ffbf, #ff9a9e);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
+            -webkit-animation: gradientShift 15s ease infinite;
             z-index: -2;
         }
         
@@ -76,6 +82,7 @@
         .twinkle-star {
             font-size: 20px;
             animation: twinkle 2s ease-in-out infinite;
+            -webkit-animation: twinkle 2s ease-in-out infinite;
         }
         
         @keyframes twinkle {
@@ -83,10 +90,16 @@
             50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
         }
         
+        @-webkit-keyframes twinkle {
+            0%, 100% { opacity: 0.4; -webkit-transform: scale(0.8) rotate(0deg); }
+            50% { opacity: 1; -webkit-transform: scale(1.2) rotate(180deg); }
+        }
+        
         /* 爱心飘动 */
         .floating-heart {
             font-size: 18px;
             animation: floatHeart 6s ease-in-out infinite;
+            -webkit-animation: floatHeart 6s ease-in-out infinite;
         }
         
         @keyframes floatHeart {
@@ -96,10 +109,18 @@
             75% { transform: translateY(-10px) scale(1.05); }
         }
         
+        @-webkit-keyframes floatHeart {
+            0%, 100% { -webkit-transform: translateY(0) scale(1); }
+            25% { -webkit-transform: translateY(-15px) scale(1.1); }
+            50% { -webkit-transform: translateY(-25px) scale(0.95); }
+            75% { -webkit-transform: translateY(-10px) scale(1.05); }
+        }
+        
         /* 礼物emoji浮动 */
         .gift-float {
             font-size: 44px;
             animation: ipFloat 8s ease-in-out infinite;
+            -webkit-animation: ipFloat 8s ease-in-out infinite;
         }
         
         @keyframes ipFloat {
@@ -109,6 +130,13 @@
             75% { transform: translateY(-15px) rotate(3deg); }
         }
         
+        @-webkit-keyframes ipFloat {
+            0%, 100% { -webkit-transform: translateY(0) rotate(-5deg); }
+            25% { -webkit-transform: translateY(-20px) rotate(5deg); }
+            50% { -webkit-transform: translateY(-30px) rotate(-3deg); }
+            75% { -webkit-transform: translateY(-15px) rotate(3deg); }
+        }
+        
         /* 祝福文字浮动 */
         .blessing-float {
             font-size: 14px;
@@ -116,6 +144,7 @@
             font-weight: 700;
             text-shadow: 0 1px 6px rgba(255,107,107,0.5);
             animation: blessingFloat 10s ease-in-out infinite;
+            -webkit-animation: blessingFloat 10s ease-in-out infinite;
             white-space: nowrap;
             letter-spacing: 1px;
         }
@@ -125,16 +154,28 @@
             50% { transform: translateY(-25px) rotate(2deg); opacity: 1; }
         }
         
+        @-webkit-keyframes blessingFloat {
+            0%, 100% { -webkit-transform: translateY(0) rotate(-2deg); opacity: 0.7; }
+            50% { -webkit-transform: translateY(-25px) rotate(2deg); opacity: 1; }
+        }
+        
         /* 彩带飘动 */
         .ribbon {
             font-size: 24px;
             animation: ribbonFloat 5s ease-in-out infinite;
+            -webkit-animation: ribbonFloat 5s ease-in-out infinite;
         }
         
         @keyframes ribbonFloat {
             0%, 100% { transform: translateX(0) rotate(0deg); }
             33% { transform: translateX(10px) rotate(10deg); }
             66% { transform: translateX(-10px) rotate(-10deg); }
+        }
+        
+        @-webkit-keyframes ribbonFloat {
+            0%, 100% { -webkit-transform: translateX(0) rotate(0deg); }
+            33% { -webkit-transform: translateX(10px) rotate(10deg); }
+            66% { -webkit-transform: translateX(-10px) rotate(-10deg); }
         }
         
         /* 闪光粒子 */
@@ -144,6 +185,7 @@
             background: #ffd700;
             border-radius: 50%;
             animation: sparkleFloat 4s ease-in-out infinite;
+            -webkit-animation: sparkleFloat 4s ease-in-out infinite;
             box-shadow: 0 0 10px #ffd700;
         }
         
@@ -152,16 +194,25 @@
             50% { opacity: 1; transform: translateY(-20px); }
         }
         
+        @-webkit-keyframes sparkleFloat {
+            0%, 100% { opacity: 0.3; -webkit-transform: translateY(0); }
+            50% { opacity: 1; -webkit-transform: translateY(-20px); }
+        }
+        
         .container {
             max-width: 480px;
             margin: 0 auto;
             padding: 20px;
+            /* 修复iOS 100vh问题 */
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             position: relative;
             z-index: 1;
+            /* 确保内容在键盘上方 */
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
         
         .card {
@@ -169,7 +220,9 @@
             border-radius: 24px;
             padding: 32px 24px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            /* 修复backdrop-filter兼容性 */
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 3px solid rgba(255, 182, 193, 0.5);
             position: relative;
             overflow: hidden;
@@ -183,6 +236,7 @@
             font-size: 20px;
             opacity: 0.6;
             animation: cardSparkle 3s ease-in-out infinite;
+            -webkit-animation: cardSparkle 3s ease-in-out infinite;
         }
         
         .card::before {
@@ -194,11 +248,17 @@
             bottom: 10px;
             right: 10px;
             animation-delay: 1.5s;
+            -webkit-animation-delay: 1.5s;
         }
         
         @keyframes cardSparkle {
             0%, 100% { opacity: 0.4; transform: scale(1); }
             50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        
+        @-webkit-keyframes cardSparkle {
+            0%, 100% { opacity: 0.4; -webkit-transform: scale(1); }
+            50% { opacity: 0.8; -webkit-transform: scale(1.2); }
         }
         
         h1 {
@@ -217,23 +277,31 @@
             position: absolute;
             font-size: 16px;
             animation: titleSparkle 2s ease-in-out infinite;
+            -webkit-animation: titleSparkle 2s ease-in-out infinite;
         }
         
         .title-decoration.left {
             left: 20%;
             top: -5px;
             animation-delay: 0s;
+            -webkit-animation-delay: 0s;
         }
         
         .title-decoration.right {
             right: 20%;
             top: -5px;
             animation-delay: 1s;
+            -webkit-animation-delay: 1s;
         }
         
         @keyframes titleSparkle {
             0%, 100% { opacity: 0.3; transform: scale(0.8); }
             50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        @-webkit-keyframes titleSparkle {
+            0%, 100% { opacity: 0.3; -webkit-transform: scale(0.8); }
+            50% { opacity: 1; -webkit-transform: scale(1.2); }
         }
         
         .subtitle {
@@ -289,6 +357,14 @@
             margin-top: 8px;
             position: relative;
             overflow: hidden;
+            /* 修复iOS按钮点击高亮 */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .btn::before {
@@ -301,11 +377,17 @@
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
             transform: rotate(45deg);
             animation: btnShine 3s linear infinite;
+            -webkit-animation: btnShine 3s linear infinite;
         }
         
         @keyframes btnShine {
             0% { transform: translateX(-100%) rotate(45deg); }
             100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        @-webkit-keyframes btnShine {
+            0% { -webkit-transform: translateX(-100%) rotate(45deg); }
+            100% { -webkit-transform: translateX(100%) rotate(45deg); }
         }
         
         .btn-primary {
@@ -329,7 +411,7 @@
         
         .admin-btn {
             position: fixed;
-            top: 10px;
+            top: calc(10px + env(safe-area-inset-top));
             right: 10px;
             width: 30px;
             height: 30px;
@@ -341,6 +423,7 @@
             opacity: 0.3;
             transition: opacity 0.3s;
             z-index: 100;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .admin-btn:hover {
@@ -438,6 +521,7 @@
             background: linear-gradient(145deg, #ff8e53, #ff6b6b);
             border-radius: 50%;
             animation: shake 0.5s ease-in-out infinite;
+            -webkit-animation: shake 0.5s ease-in-out infinite;
             box-shadow: 0 10px 40px rgba(255, 107, 107, 0.4),
                         0 0 60px rgba(255, 142, 83, 0.3),
                         inset 0 -5px 20px rgba(0,0,0,0.1);
@@ -450,6 +534,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
             font-size: 80px;
             z-index: 2;
         }
@@ -463,11 +548,17 @@
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, transparent 70%);
             animation: machineGlow 1.5s ease-in-out infinite;
+            -webkit-animation: machineGlow 1.5s ease-in-out infinite;
         }
         
         @keyframes machineGlow {
             0%, 100% { opacity: 0.5; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @-webkit-keyframes machineGlow {
+            0%, 100% { opacity: 0.5; -webkit-transform: scale(1); }
+            50% { opacity: 1; -webkit-transform: scale(1.1); }
         }
         
         @keyframes shake {
@@ -476,13 +567,25 @@
             75% { transform: translateX(5px) rotate(5deg); }
         }
         
+        @-webkit-keyframes shake {
+            0%, 100% { -webkit-transform: translateX(0) rotate(0deg); }
+            25% { -webkit-transform: translateX(-5px) rotate(-5deg); }
+            75% { -webkit-transform: translateX(5px) rotate(5deg); }
+        }
+        
         .loading-text {
             font-size: 1.2rem;
             color: #ff6b6b;
             animation: pulse 1s ease-in-out infinite;
+            -webkit-animation: pulse 1s ease-in-out infinite;
         }
         
         @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @-webkit-keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
@@ -501,6 +604,7 @@
             font-size: 80px;
             margin-bottom: 16px;
             animation: resultBounce 0.6s ease-out;
+            -webkit-animation: resultBounce 0.6s ease-out;
         }
         
         @keyframes resultBounce {
@@ -508,6 +612,13 @@
             50% { transform: scale(1.2); }
             70% { transform: scale(0.9); }
             100% { transform: scale(1); }
+        }
+        
+        @-webkit-keyframes resultBounce {
+            0% { -webkit-transform: scale(0); }
+            50% { -webkit-transform: scale(1.2); }
+            70% { -webkit-transform: scale(0.9); }
+            100% { -webkit-transform: scale(1); }
         }
         
         .result-title {
@@ -562,6 +673,7 @@
             width: 10px;
             height: 10px;
             animation: confetti-fall 3s ease-out forwards;
+            -webkit-animation: confetti-fall 3s ease-out forwards;
         }
         
         @keyframes confetti-fall {
@@ -571,6 +683,17 @@
             }
             100% {
                 transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @-webkit-keyframes confetti-fall {
+            0% {
+                -webkit-transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                -webkit-transform: translateY(100vh) rotate(720deg);
                 opacity: 0;
             }
         }
@@ -590,6 +713,7 @@
             position: absolute;
             font-size: 30px;
             animation: ipConfettiFall 4s ease-out forwards;
+            -webkit-animation: ipConfettiFall 4s ease-out forwards;
             text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
@@ -607,6 +731,24 @@
             }
             100% {
                 transform: translateY(100vh) rotate(360deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        @-webkit-keyframes ipConfettiFall {
+            0% {
+                -webkit-transform: translateY(-50px) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                -webkit-transform: translateY(0) rotate(20deg) scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                -webkit-transform: translateY(100vh) rotate(360deg) scale(0.5);
                 opacity: 0;
             }
         }
@@ -659,6 +801,7 @@
             border: none;
             cursor: pointer;
             font-size: 18px;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .admin-stats {
@@ -728,6 +871,7 @@
             cursor: pointer;
             font-size: 1rem;
             margin-top: 16px;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .tab-nav {
@@ -745,6 +889,7 @@
             cursor: pointer;
             font-size: 0.9rem;
             transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .tab-btn.active {
@@ -794,6 +939,7 @@
         .page {
             display: none;
             animation: fadeIn 0.3s ease;
+            -webkit-animation: fadeIn 0.3s ease;
         }
         
         .page.active {
@@ -803,6 +949,11 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @-webkit-keyframes fadeIn {
+            from { opacity: 0; -webkit-transform: translateY(10px); }
+            to { opacity: 1; -webkit-transform: translateY(0); }
         }
 
         /* 盲盒开启效果 */
@@ -822,6 +973,7 @@
             margin: 20px auto;
             position: relative;
             animation: boxFloat 2s ease-in-out infinite;
+            -webkit-animation: boxFloat 2s ease-in-out infinite;
         }
         
         .mystery-box .box-body {
@@ -857,6 +1009,7 @@
             top: -10px;
             left: 50%;
             transform: translateX(-50%);
+            -webkit-transform: translateX(-50%);
             width: 90%;
             height: 30px;
             background: linear-gradient(145deg, #ffab8e, #ffa070);
@@ -872,6 +1025,7 @@
             height: 20px;
             background: linear-gradient(90deg, #ffd700, #ffed4a, #ffd700);
             transform: translateY(-50%);
+            -webkit-transform: translateY(-50%);
         }
         
         .mystery-box .box-bow {
@@ -879,10 +1033,18 @@
             top: -20px;
             left: 50%;
             transform: translateX(-50%);
+            -webkit-transform: translateX(-50%);
             width: 50px;
             height: 40px;
             background: #ffd700;
             clip-path: polygon(50% 0%, 0% 100%, 50% 70%, 100% 100%);
+            /* clip-path fallback for older browsers */
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            width: 30px;
+            height: 30px;
+            border-radius: 50% 50% 50% 0;
+            transform: translateX(-50%) rotate(-45deg);
+            -webkit-transform: translateX(-50%) rotate(-45deg);
         }
         
         /* 盲盒周围IP装饰 */
@@ -890,22 +1052,34 @@
             position: absolute;
             font-size: 20px;
             animation: decorFloat 3s ease-in-out infinite;
+            -webkit-animation: decorFloat 3s ease-in-out infinite;
         }
         
-        .box-ip-decor:nth-child(1) { top: -30px; left: -20px; animation-delay: 0s; }
-        .box-ip-decor:nth-child(2) { top: -30px; right: -20px; animation-delay: 0.5s; }
-        .box-ip-decor:nth-child(3) { bottom: -20px; left: -30px; animation-delay: 1s; }
-        .box-ip-decor:nth-child(4) { bottom: -20px; right: -30px; animation-delay: 1.5s; }
+        .box-ip-decor:nth-child(1) { top: -30px; left: -20px; animation-delay: 0s; -webkit-animation-delay: 0s; }
+        .box-ip-decor:nth-child(2) { top: -30px; right: -20px; animation-delay: 0.5s; -webkit-animation-delay: 0.5s; }
+        .box-ip-decor:nth-child(3) { bottom: -20px; left: -30px; animation-delay: 1s; -webkit-animation-delay: 1s; }
+        .box-ip-decor:nth-child(4) { bottom: -20px; right: -30px; animation-delay: 1.5s; -webkit-animation-delay: 1.5s; }
         
         @keyframes decorFloat {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-10px) rotate(10deg); }
         }
         
+        @-webkit-keyframes decorFloat {
+            0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
+            50% { -webkit-transform: translateY(-10px) rotate(10deg); }
+        }
+        
         @keyframes boxFloat {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             25% { transform: translateY(-10px) rotate(-3deg); }
             75% { transform: translateY(-10px) rotate(3deg); }
+        }
+        
+        @-webkit-keyframes boxFloat {
+            0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
+            25% { -webkit-transform: translateY(-10px) rotate(-3deg); }
+            75% { -webkit-transform: translateY(-10px) rotate(3deg); }
         }
         
         @keyframes boxOpen {
@@ -916,13 +1090,23 @@
             100% { transform: scale(0) rotate(0deg); opacity: 0; }
         }
         
+        @-webkit-keyframes boxOpen {
+            0% { -webkit-transform: scale(1) rotate(0deg); }
+            30% { -webkit-transform: scale(1.2) rotate(-10deg); }
+            50% { -webkit-transform: scale(1.3) rotate(10deg); }
+            70% { -webkit-transform: scale(1.2) rotate(-5deg); }
+            100% { -webkit-transform: scale(0) rotate(0deg); opacity: 0; }
+        }
+        
         .mystery-box.opening {
             animation: boxOpen 0.6s ease-out forwards;
+            -webkit-animation: boxOpen 0.6s ease-out forwards;
         }
         
         .prize-reveal {
             display: none;
             animation: prizeReveal 0.5s ease-out forwards;
+            -webkit-animation: prizeReveal 0.5s ease-out forwards;
         }
         
         .prize-reveal.active {
@@ -933,6 +1117,12 @@
             0% { transform: scale(0); opacity: 0; }
             50% { transform: scale(1.2); }
             100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @-webkit-keyframes prizeReveal {
+            0% { -webkit-transform: scale(0); opacity: 0; }
+            50% { -webkit-transform: scale(1.2); }
+            100% { -webkit-transform: scale(1); opacity: 1; }
         }
         
         /* 增强闪光效果 */
@@ -947,6 +1137,7 @@
             position: absolute;
             font-size: 20px;
             animation: sparkle 1s ease-out forwards;
+            -webkit-animation: sparkle 1s ease-out forwards;
         }
         
         /* 多彩闪光 */
@@ -959,6 +1150,12 @@
             0% { transform: scale(0) rotate(0deg); opacity: 1; }
             50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
             100% { transform: scale(2) rotate(360deg); opacity: 0; }
+        }
+        
+        @-webkit-keyframes sparkle {
+            0% { -webkit-transform: scale(0) rotate(0deg); opacity: 1; }
+            50% { -webkit-transform: scale(1.5) rotate(180deg); opacity: 1; }
+            100% { -webkit-transform: scale(2) rotate(360deg); opacity: 0; }
         }
         
         /* 抽奖进行中背景粒子 */
@@ -976,11 +1173,17 @@
             position: absolute;
             font-size: 16px;
             animation: particleFloat 3s ease-in-out infinite;
+            -webkit-animation: particleFloat 3s ease-in-out infinite;
         }
         
         @keyframes particleFloat {
             0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
             50% { transform: translateY(-30px) translateX(10px); opacity: 1; }
+        }
+        
+        @-webkit-keyframes particleFloat {
+            0%, 100% { -webkit-transform: translateY(0) translateX(0); opacity: 0.6; }
+            50% { -webkit-transform: translateY(-30px) translateX(10px); opacity: 1; }
         }
 
     </style>
@@ -1004,18 +1207,18 @@
                 
                 <div class="input-group">
                     <label>姓名</label>
-                    <input type="text" id="input-name" placeholder="例如: Cora Liu" autocomplete="off">
+                    <input type="text" id="input-name" placeholder="例如: Cora Liu" autocomplete="off" inputmode="text" autocapitalize="words">
                     <p class="input-hint">请使用与报名时一致的英文名，格式：名 姓（首字母大写）</p>
                     <p class="error-msg" id="name-error"></p>
                 </div>
                 
                 <div class="input-group">
                     <label>幸运数字</label>
-                    <input type="number" id="input-number" placeholder="请输入您的幸运数字" min="1" max="99">
+                    <input type="text" id="input-number" placeholder="请输入您的幸运数字" inputmode="numeric" pattern="[0-9]*">
                     <p class="error-msg" id="number-error"></p>
                 </div>
                 
-                <button class="btn btn-primary" onclick="handleSubmit()">开始抽奖 🎰</button>
+                <button class="btn btn-primary" id="btn-submit" onclick="handleSubmit()">开始抽奖 🎰</button>
             </div>
         </div>
         
@@ -1065,7 +1268,7 @@
                 <h1>✨ 恭喜获得 <span class="title-decoration left">🎉</span><span class="title-decoration right">🏆</span></h1>
                 <div class="result-icon">🎉</div>
                 <div class="result-prize" id="revealed-prize"></div>
-                <button class="btn btn-primary" onclick="showFinalResult()">太棒了!</button>
+                <button class="btn btn-primary" id="reveal-btn" onclick="showFinalResult()">太棒了!</button>
             </div>
             
             <div class="card result-page" id="result-scene">
@@ -1202,7 +1405,7 @@
         "42": ["Amber Gan", "Xenia Zheng"],
         "46": ["Quinn Zhang", "Raina Gao"],
         "47": ["Carotine Ying"],
-        "49": ["Vera Wang", "zhang Nicolie"],
+        "49": ["Vera Wang", "Nicolie Zhang"],
         "50": ["Melo Zhang", "Sookie Yang"],
         "52": ["Shirley Hu", "Layla Lin"],
         "53": ["Cally Ye", "Cora Liu", "Dyjay Ye", "Nash Wang"],
@@ -1382,7 +1585,7 @@
         "Yuri Zhang": 64,
         "Zihui Zhao": 79,
         "lenna Gao": 41,
-        "zhang Nicolie": 49,
+        "Nicolie Zhang": 49,
 
         // 双参加的人（15人）- 存为数组，两个号码都能用
         "Ana Zhang": [87, 50],
@@ -1447,39 +1650,46 @@
         }
         
         shuffle(array) {
-            const result = [...array];
+            const result = array.slice(); // 改为使用slice()代替扩展运算符以提高兼容性
             for (let i = result.length - 1; i > 0; i--) {
                 const j = this.nextInt(i + 1);
-                [result[i], result[j]] = [result[j], result[i]];
+                const temp = result[i];
+                result[i] = result[j];
+                result[j] = temp;
             }
             return result;
         }
     }
 
     // 固定种子生成抽奖结果
-    function generateLotteryResults() {
-        const rng = new SeededRandom(20240101);
+    function generateLotteryResults(useRandomSeed) {
+        const seed = useRandomSeed ? Date.now() : 20240101;
+        const rng = new SeededRandom(seed);
         
         // 生成179个抽奖机会的有序列表
         const entries = [];
         
         // 144人线上1次
         Object.entries(NAME_TO_NUMBER).forEach(([name, number]) => {
-            if (!DOUBLE_CHANCE_NAMES.includes(name) && !OFFLINE_ONLY_NAMES.includes(name)) {
-                entries.push({ name, instance: 1, number });
+            if (!DOUBLE_CHANCE_NAMES.includes(name) && !OFFLINE_ONLY_NAMES.indexOf(name) === -1) {
+                // 使用indexOf代替includes以提高兼容性
+                if (DOUBLE_CHANCE_NAMES.indexOf(name) === -1 && OFFLINE_ONLY_NAMES.indexOf(name) === -1) {
+                    entries.push({ name: name, instance: 1, number: number });
+                }
             }
         });
         
         // 15人双参加2次（instance 1为线上号码，instance 2为线下号码）
-        DOUBLE_CHANCE_NAMES.forEach(name => {
+        DOUBLE_CHANCE_NAMES.forEach(function(name) {
             const numbers = NAME_TO_NUMBER[name]; // 数组 [线上, 线下]
-            entries.push({ name, instance: 1, number: numbers[0] }); // 线上号码
-            entries.push({ name, instance: 2, number: numbers[1] }); // 线下号码
+            entries.push({ name: name, instance: 1, number: numbers[0] }); // 线上号码
+            entries.push({ name: name, instance: 2, number: numbers[1] }); // 线下号码
         });
         
         // 3人仅线下1次
-        OFFLINE_ONLY_NAMES.forEach(name => {
-            entries.push({ name, instance: 1, number: NAME_TO_NUMBER[name] });
+        OFFLINE_ONLY_NAMES.forEach(function(name) {
+            const num = NAME_TO_NUMBER[name];
+            entries.push({ name: name, instance: 1, number: Array.isArray(num) ? num[0] : num });
         });
         
         // Shuffle抽奖顺序
@@ -1487,8 +1697,10 @@
         
         // 构建奖品池
         const prizePool = [];
-        Object.entries(PRIZES).forEach(([category, items]) => {
-            items.forEach(item => {
+        Object.entries(PRIZES).forEach(function(entry) {
+            const category = entry[0];
+            const items = entry[1];
+            items.forEach(function(item) {
                 prizePool.push(item);
             });
         });
@@ -1503,8 +1715,8 @@
         
         // 分配结果
         const results = {};
-        shuffledEntries.forEach((entry, index) => {
-            const key = `${entry.name}_${entry.instance}`;
+        shuffledEntries.forEach(function(entry, index) {
+            const key = entry.name + '_' + entry.instance;
             results[key] = {
                 prize: shuffledPrizes[index],
                 won: shuffledPrizes[index] !== "感谢参与",
@@ -1520,14 +1732,68 @@
     let currentUser = null;
     let remainingChances = 0;
     let lastResult = null;
+    // 防双击标志
+    let isSubmitting = false;
 
+    // ========== 工具函数 ==========
+    // HTML转义函数，防止XSS
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ========== localStorage安全封装 ==========
+    const Storage = {
+        get: function(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.warn('localStorage getItem failed:', e);
+                return null;
+            }
+        },
+        set: function(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e) {
+                console.warn('localStorage setItem failed:', e);
+                // 如果是配额超限，尝试清理
+                if (e.name === 'QuotaExceededError' || e.code === 22) {
+                    try {
+                        localStorage.removeItem('lottery_results');
+                        localStorage.setItem(key, value);
+                        return true;
+                    } catch (e2) {
+                        console.error('Failed to save even after cleanup:', e2);
+                    }
+                }
+                return false;
+            }
+        },
+        remove: function(key) {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.warn('localStorage removeItem failed:', e);
+            }
+        }
+    };
 
     // ========== 初始化 ==========
     function init() {
         // 从localStorage恢复结果或生成新的
-        const saved = localStorage.getItem('lottery_results');
+        const saved = Storage.get('lottery_results');
         if (saved) {
-            LOTTERY_RESULTS = JSON.parse(saved);
+            try {
+                LOTTERY_RESULTS = JSON.parse(saved);
+            } catch (e) {
+                console.warn('JSON parse failed, regenerating:', e);
+                LOTTERY_RESULTS = generateLotteryResults();
+                saveResults();
+            }
         } else {
             LOTTERY_RESULTS = generateLotteryResults();
             saveResults();
@@ -1536,6 +1802,35 @@
         
         // 初始化浮动装饰
         initFloatingDecorations();
+        
+        // 修复iOS 100vh问题
+        fixIOSVh();
+        
+        // 监听视口变化（键盘弹出等）
+        window.addEventListener('resize', debounce(fixIOSVh, 100));
+        window.addEventListener('orientationchange', debounce(function() {
+            setTimeout(fixIOSVh, 100);
+        }, 100));
+    }
+    
+    // 防抖函数
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+    
+    // 修复iOS 100vh问题
+    function fixIOSVh() {
+        // 使用100dvh如果支持，否则使用JS动态计算
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
     }
     
     // ========== 浮动装饰初始化 ==========
@@ -1552,27 +1847,31 @@
         
         // 添加礼物emoji浮动元素
         const giftEmojis = ['🎁', '🎀', '🧸', '💎', '🎪', '🏆', '🌟', '💝', '🦄', '🍭'];
-        giftEmojis.forEach((emoji, index) => {
+        giftEmojis.forEach(function(emoji, index) {
             const item = document.createElement('div');
             item.className = 'float-item gift-float';
             item.textContent = emoji;
             item.style.left = (5 + Math.random() * 85) + '%';
             item.style.top = (5 + Math.random() * 85) + '%';
             item.style.animationDelay = (index * 0.7) + 's';
+            item.style.webkitAnimationDelay = (index * 0.7) + 's';
             item.style.animationDuration = (6 + Math.random() * 4) + 's';
+            item.style.webkitAnimationDuration = (6 + Math.random() * 4) + 's';
             container.appendChild(item);
         });
         
         // 添加祝福文字浮动元素（独立位置）
         const blessings = ['好运连连', '甜甜蜜蜜', '可爱满分', '闪闪发光', '惊喜不断', '幸运之星', '心想事成', '满心欢喜', '奇妙相遇', '生活甜甜'];
-        blessings.forEach((text, index) => {
+        blessings.forEach(function(text, index) {
             const item = document.createElement('div');
             item.className = 'float-item blessing-float';
             item.textContent = text;
             item.style.left = (5 + Math.random() * 80) + '%';
             item.style.top = (5 + Math.random() * 85) + '%';
             item.style.animationDelay = (index * 1.1) + 's';
+            item.style.webkitAnimationDelay = (index * 1.1) + 's';
             item.style.animationDuration = (8 + Math.random() * 4) + 's';
+            item.style.webkitAnimationDuration = (8 + Math.random() * 4) + 's';
             container.appendChild(item);
         });
         
@@ -1584,6 +1883,7 @@
             star.style.left = (Math.random() * 90 + 5) + '%';
             star.style.top = (Math.random() * 90 + 5) + '%';
             star.style.animationDelay = (Math.random() * 2) + 's';
+            star.style.webkitAnimationDelay = (Math.random() * 2) + 's';
             container.appendChild(star);
         }
         
@@ -1595,6 +1895,7 @@
             heart.style.left = (Math.random() * 85 + 5) + '%';
             heart.style.top = (Math.random() * 85 + 5) + '%';
             heart.style.animationDelay = (Math.random() * 3) + 's';
+            heart.style.webkitAnimationDelay = (Math.random() * 3) + 's';
             heart.style.fontSize = (14 + Math.random() * 8) + 'px';
             container.appendChild(heart);
         }
@@ -1607,6 +1908,7 @@
             ribbon.style.left = (Math.random() * 85 + 5) + '%';
             ribbon.style.top = (Math.random() * 85 + 5) + '%';
             ribbon.style.animationDelay = (Math.random() * 2) + 's';
+            ribbon.style.webkitAnimationDelay = (Math.random() * 2) + 's';
             container.appendChild(ribbon);
         }
         
@@ -1617,6 +1919,7 @@
             particle.style.left = (Math.random() * 90 + 5) + '%';
             particle.style.top = (Math.random() * 90 + 5) + '%';
             particle.style.animationDelay = (Math.random() * 4) + 's';
+            particle.style.webkitAnimationDelay = (Math.random() * 4) + 's';
             particle.style.width = (4 + Math.random() * 6) + 'px';
             particle.style.height = particle.style.width;
             container.appendChild(particle);
@@ -1638,82 +1941,133 @@
             particle.style.left = (Math.random() * 100) + '%';
             particle.style.top = (Math.random() * 100) + '%';
             particle.style.animationDelay = (Math.random() * 3) + 's';
+            particle.style.webkitAnimationDelay = (Math.random() * 3) + 's';
             particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+            particle.style.webkitAnimationDuration = (2 + Math.random() * 2) + 's';
             container.appendChild(particle);
         }
     }
 
     function saveResults() {
-        localStorage.setItem('lottery_results', JSON.stringify(LOTTERY_RESULTS));
+        Storage.set('lottery_results', JSON.stringify(LOTTERY_RESULTS));
     }
 
     // ========== 页面切换 ==========
     function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
+        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+        var targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            // 滚动到顶部确保页面可见
+            window.scrollTo(0, 0);
+        }
+    }
+
+    // ========== 输入框处理 ==========
+    function setupInputFocusFix() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(function(input) {
+            // 聚焦时平滑滚动
+            input.addEventListener('focus', function() {
+                setTimeout(function() {
+                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+            
+            // iOS Safari 特殊处理
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                input.addEventListener('blur', function() {
+                    setTimeout(function() {
+                        window.scrollTo(0, 0);
+                    }, 100);
+                });
+            }
+        });
     }
 
     // ========== 表单提交 ==========
     function handleSubmit() {
-        const name = document.getElementById('input-name').value.trim();
-        const number = document.getElementById('input-number').value.trim();
+        // 防双击
+        if (isSubmitting) return;
+        isSubmitting = true;
+        var btn = document.getElementById('btn-submit');
+        if (btn) btn.disabled = true;
         
-        // 清除错误
-        document.getElementById('name-error').classList.remove('show');
-        document.getElementById('number-error').classList.remove('show');
-        
-        // 验证姓名
-        if (!name) {
-            document.getElementById('name-error').textContent = '请输入姓名';
-            document.getElementById('name-error').classList.add('show');
-            return;
+        try {
+            const name = document.getElementById('input-name').value.trim();
+            const number = document.getElementById('input-number').value.trim();
+            
+            // 清除错误
+            document.getElementById('name-error').classList.remove('show');
+            document.getElementById('number-error').classList.remove('show');
+            
+            // 验证姓名
+            if (!name) {
+                document.getElementById('name-error').textContent = '请输入姓名';
+                document.getElementById('name-error').classList.add('show');
+                resetSubmitState();
+                return;
+            }
+            
+            // 检查姓名是否存在于映射中
+            if (!NAME_TO_NUMBER.hasOwnProperty(name)) {
+                document.getElementById('name-error').textContent = '未找到该姓名，请确认格式正确（如 Cora Liu）';
+                document.getElementById('name-error').classList.add('show');
+                resetSubmitState();
+                return;
+            }
+            
+            // 验证幸运数字
+            if (!number) {
+                document.getElementById('number-error').textContent = '请输入幸运数字';
+                document.getElementById('number-error').classList.add('show');
+                resetSubmitState();
+                return;
+            }
+            
+            const num = parseInt(number, 10);
+            if (isNaN(num) || num < 1 || num > 99) {
+                document.getElementById('number-error').textContent = '幸运数字必须在1-99之间';
+                document.getElementById('number-error').classList.add('show');
+                resetSubmitState();
+                return;
+            }
+            
+            // 验证号码匹配（支持数组形式的多个号码）
+            const expectedNumbers = NAME_TO_NUMBER[name];
+            const numbers = Array.isArray(expectedNumbers) ? expectedNumbers : [expectedNumbers];
+            if (numbers.indexOf(num) === -1) {
+                document.getElementById('number-error').textContent = '幸运数字不匹配，请确认后重新输入';
+                document.getElementById('number-error').classList.add('show');
+                resetSubmitState();
+                return;
+            }
+            
+            // 姓名加号码已唯一，直接验证通过
+            validateAndProceed(name);
+        } catch (e) {
+            console.error('Submit error:', e);
+            resetSubmitState();
         }
-        
-        // 检查姓名是否存在于映射中
-        if (!(name in NAME_TO_NUMBER)) {
-            document.getElementById('name-error').textContent = '未找到该姓名，请确认格式正确（如 Cora Liu）';
-            document.getElementById('name-error').classList.add('show');
-            return;
-        }
-        
-        // 验证幸运数字
-        if (!number) {
-            document.getElementById('number-error').textContent = '请输入幸运数字';
-            document.getElementById('number-error').classList.add('show');
-            return;
-        }
-        
-        const num = parseInt(number);
-        if (num < 1 || num > 99) {
-            document.getElementById('number-error').textContent = '幸运数字必须在1-99之间';
-            document.getElementById('number-error').classList.add('show');
-            return;
-        }
-        
-        // 验证号码匹配（支持数组形式的多个号码）
-        const expectedNumbers = NAME_TO_NUMBER[name];
-        const numbers = Array.isArray(expectedNumbers) ? expectedNumbers : [expectedNumbers];
-        if (!numbers.includes(num)) {
-            // 提示正确的号码
-            const uniqueNumbers = [...new Set(numbers)];
-            document.getElementById('number-error').textContent = '幸运数字不匹配，请确认后重新输入';
-            document.getElementById('number-error').classList.add('show');
-            return;
-        }
-        
-        // 姓名加号码已唯一，直接验证通过
-        validateAndProceed(name);
+    }
+    
+    function resetSubmitState() {
+        isSubmitting = false;
+        var btn = document.getElementById('btn-submit');
+        if (btn) btn.disabled = false;
     }
 
     function validateAndProceed(name) {
         // 计算剩余抽奖机会（检查 drawn 标记）
         let usedCount = 0;
-        if (LOTTERY_RESULTS[`${name}_1`] && LOTTERY_RESULTS[`${name}_1`].drawn) usedCount++;
-        if (LOTTERY_RESULTS[`${name}_2`] && LOTTERY_RESULTS[`${name}_2`].drawn) usedCount++;
+        const key1 = name + '_1';
+        const key2 = name + '_2';
+        if (LOTTERY_RESULTS[key1] && LOTTERY_RESULTS[key1].drawn) usedCount++;
+        if (LOTTERY_RESULTS[key2] && LOTTERY_RESULTS[key2].drawn) usedCount++;
         
         let totalChances = 1;
-        if (DOUBLE_CHANCE_NAMES.includes(name)) totalChances = 2;
-        if (OFFLINE_ONLY_NAMES.includes(name)) totalChances = 1;
+        if (DOUBLE_CHANCE_NAMES.indexOf(name) !== -1) totalChances = 2;
+        if (OFFLINE_ONLY_NAMES.indexOf(name) !== -1) totalChances = 1;
         
         remainingChances = totalChances - usedCount;
         
@@ -1721,6 +2075,7 @@
             // 已经抽过奖，直接显示结果
             currentUser = name;
             showEndPage();
+            resetSubmitState();
             return;
         }
         
@@ -1735,7 +2090,7 @@
         if (usedCount > 0 && remainingChances > 0) {
             // 已经用过1次，还有第2次机会
             remainingInfo.style.display = 'block';
-            document.getElementById('remaining-text').textContent = `您已使用 ${usedCount} 次，还剩 ${remainingChances} 次！`;
+            document.getElementById('remaining-text').textContent = '您已使用 ' + usedCount + ' 次，还剩 ' + remainingChances + ' 次！';
             firstDrawBtn.style.display = 'none'; // 隐藏上面的"立即抽奖"
         } else {
             remainingInfo.style.display = 'none';
@@ -1743,10 +2098,21 @@
         }
         
         showPage('page-welcome');
+        resetSubmitState();
     }
 
     // ========== 抽奖流程 ==========
+    // 抽奖中状态标志
+    let isLottering = false;
+    
     function startLottery() {
+        if (isLottering) return;
+        isLottering = true;
+        
+        // 禁用所有抽奖按钮
+        var btns = document.querySelectorAll('#btn-first-draw, #remaining-info .btn-primary');
+        btns.forEach(function(btn) { btn.disabled = true; });
+        
         showPage('page-animation');
         
         // 初始化抽奖粒子
@@ -1773,12 +2139,14 @@
         
         // 找到下一个可用实例（检查 drawn 标记）
         let instance = 1;
-        if (LOTTERY_RESULTS[`${currentUser}_1`] && LOTTERY_RESULTS[`${currentUser}_1`].drawn) instance = 2;
+        const key1 = currentUser + '_1';
+        if (LOTTERY_RESULTS[key1] && LOTTERY_RESULTS[key1].drawn) instance = 2;
         
-        lastResult = LOTTERY_RESULTS[`${currentUser}_${instance}`];
+        const resultKey = currentUser + '_' + instance;
+        lastResult = LOTTERY_RESULTS[resultKey];
         
         // 动画结束后显示结果
-        setTimeout(() => {
+        setTimeout(function() {
             animation.style.display = 'none';
             boxScene.classList.add('active');
             
@@ -1786,18 +2154,35 @@
             gachaMachine.style.display = 'none';
             mysteryBox.style.display = 'block';
             
-            // 显示奖品（同时显示类别和名称）
+            // 显示奖品（使用textContent防止XSS）
             const revealCategory = PRIZE_CATEGORY[lastResult.prize] || '';
             if (lastResult.won) {
-                document.getElementById('revealed-prize').innerHTML = 
-                    `<div class="prize-category">${revealCategory}</div><div class="prize-name">${lastResult.prize}</div>`;
+                // 使用textContent而非innerHTML
+                var prizeDiv = document.getElementById('revealed-prize');
+                prizeDiv.innerHTML = '';
+                var catDiv = document.createElement('div');
+                catDiv.className = 'prize-category';
+                catDiv.textContent = revealCategory;
+                var nameDiv = document.createElement('div');
+                nameDiv.className = 'prize-name';
+                nameDiv.textContent = lastResult.prize;
+                prizeDiv.appendChild(catDiv);
+                prizeDiv.appendChild(nameDiv);
+                document.getElementById('reveal-btn').textContent = '太棒了! 🎉';
             } else {
                 document.getElementById('revealed-prize').textContent = lastResult.prize;
+                document.getElementById('reveal-btn').textContent = '知道了';
             }
             
             // 创建增强闪光效果
             createEnhancedSparkles();
         }, 2000);
+    }
+    
+    function resetLotteryState() {
+        isLottering = false;
+        var btns = document.querySelectorAll('#btn-first-draw, #remaining-info .btn-primary, #btn-submit');
+        btns.forEach(function(btn) { btn.disabled = false; });
     }
     
     function showNormalResult() {
@@ -1808,13 +2193,14 @@
             document.getElementById('win-result').style.display = 'block';
             document.getElementById('lose-result').style.display = 'none';
             const category = PRIZE_CATEGORY[lastResult.prize] || '';
-            document.getElementById('prize-category').textContent = `类别：${category}`;
+            document.getElementById('prize-category').textContent = '类别：' + category;
             document.getElementById('prize-category').className = 'prize-category';
             // 咖啡券显示口味+提醒联系Cora Liu选择冰度甜度
             if (category === "瑞幸咖啡券") {
-                document.getElementById('prize-name').innerHTML = `口味：${lastResult.prize}<br><span style="color:#ff8e53;font-size:0.9rem;">☕ 请联系 Cora Liu 选择冰度/甜度</span>`;
+                var prizeNameEl = document.getElementById('prize-name');
+                prizeNameEl.innerHTML = '口味：' + escapeHtml(lastResult.prize) + '<br><span style="color:#ff8e53;font-size:0.9rem;">☕ 请联系 Cora Liu 选择冰度/甜度</span>';
             } else {
-                document.getElementById('prize-name').textContent = `奖品：${lastResult.prize}`;
+                document.getElementById('prize-name').textContent = '奖品：' + lastResult.prize;
             }
             document.getElementById('prize-name').className = 'prize-name';
             // 增强的中奖庆祝效果
@@ -1840,6 +2226,7 @@
         
         remainingChances--;
         updateStats();
+        resetLotteryState();
     }
     
     function showFinalResult() {
@@ -1855,7 +2242,7 @@
         if (remainingChances > 0) {
             // 还有机会，返回欢迎页并显示剩余信息
             document.getElementById('remaining-info').style.display = 'block';
-            document.getElementById('remaining-text').textContent = `还有第2次抽奖机会！`;
+            document.getElementById('remaining-text').textContent = '还有第2次抽奖机会！';
             document.getElementById('btn-first-draw').style.display = 'none'; // 隐藏上面的按钮
             showPage('page-welcome');
         } else {
@@ -1869,7 +2256,7 @@
         let wonAny = false;
         let wonPrizes = [];
         for (let i = 1; i <= 2; i++) {
-            const key = `${currentUser}_${i}`;
+            const key = currentUser + '_' + i;
             if (LOTTERY_RESULTS[key] && LOTTERY_RESULTS[key].drawn && LOTTERY_RESULTS[key].won) {
                 wonAny = true;
                 const prize = LOTTERY_RESULTS[key].prize;
@@ -1877,9 +2264,9 @@
                 
                 // 处理咖啡券的显示
                 if (category === "瑞幸咖啡券") {
-                    wonPrizes.push(`${prize}（请联系Cora Liu选择冰度/甜度）`);
+                    wonPrizes.push(prize + '（请联系Cora Liu选择冰度/甜度）');
                 } else {
-                    wonPrizes.push(category ? `${category} - ${prize}` : prize);
+                    wonPrizes.push(category ? category + ' - ' + prize : prize);
                 }
             }
         }
@@ -1895,35 +2282,34 @@
             
             let prizeHtml = '';
             if (wonAny) {
-                prizeHtml = `
-                    <div style="margin-bottom:16px;">
-                        ${wonPrizes.map(p => `<div style="color:#ff6b6b;font-weight:600;font-size:18px;margin:4px 0;">${p}</div>`).join('')}
-                    </div>
-                    <p style="color:#ff6b6b;font-weight:600;font-size:18px;margin-bottom:24px;">请于5月12日（周二）中午12:00-13:00在三楼NETHERLANDS会议室领取礼品 🎁</p>
-                `;
+                prizeHtml = '<div style="margin-bottom:16px;">';
+                wonPrizes.forEach(function(p) {
+                    prizeHtml += '<div style="color:#ff6b6b;font-weight:600;font-size:18px;margin:4px 0;">' + escapeHtml(p) + '</div>';
+                });
+                prizeHtml += '</div>';
+                prizeHtml += '<p style="color:#ff6b6b;font-weight:600;font-size:18px;margin-bottom:24px;">请于5月12日（周二）中午12:00-13:00在三楼NETHERLANDS会议室领取礼品 🎁</p>';
             }
             
-            endPage.innerHTML = `
-                <div class="card" style="text-align:center;">
-                    <div style="font-size:80px;margin-bottom:20px;">🎊</div>
-                    <h1 style="margin-bottom:16px;">感谢参与!</h1>
-                    <p style="color:#666;margin-bottom:16px;">您已用完所有抽奖机会</p>
-                    ${prizeHtml}
-                    <button class="btn btn-primary" onclick="returnToForm()">返回首页</button>
-                </div>
-            `;
+            endPage.innerHTML = 
+                '<div class="card" style="text-align:center;">' +
+                    '<div style="font-size:80px;margin-bottom:20px;">🎊</div>' +
+                    '<h1 style="margin-bottom:16px;">感谢参与!</h1>' +
+                    '<p style="color:#666;margin-bottom:16px;">您已用完所有抽奖机会</p>' +
+                    prizeHtml +
+                    '<button class="btn btn-primary" onclick="returnToForm()">返回首页</button>' +
+                '</div>';
             container.appendChild(endPage);
         } else {
             // 更新已有结束页面的奖品信息
             const card = endPage.querySelector('.card');
             let prizeHtml = '';
             if (wonAny) {
-                prizeHtml = `
-                    <div style="margin-bottom:16px;">
-                        ${wonPrizes.map(p => `<div style="color:#ff6b6b;font-weight:600;font-size:18px;margin:4px 0;">${p}</div>`).join('')}
-                    </div>
-                    <p style="color:#ff6b6b;font-weight:600;font-size:18px;margin-bottom:24px;">请于5月12日（周二）中午12:00-13:00在三楼NETHERLANDS会议室领取礼品 🎁</p>
-                `;
+                prizeHtml = '<div style="margin-bottom:16px;">';
+                wonPrizes.forEach(function(p) {
+                    prizeHtml += '<div style="color:#ff6b6b;font-weight:600;font-size:18px;margin:4px 0;">' + escapeHtml(p) + '</div>';
+                });
+                prizeHtml += '</div>';
+                prizeHtml += '<p style="color:#ff6b6b;font-weight:600;font-size:18px;margin-bottom:24px;">请于5月12日（周二）中午12:00-13:00在三楼NETHERLANDS会议室领取礼品 🎁</p>';
             }
             // 替换原来的内容（保留前面的部分，只更新奖品区）
             const oldPrizeDiv = card.querySelector('div[style*="margin-bottom:16px"]');
@@ -1961,14 +2347,16 @@
             piece.style.left = Math.random() * 100 + '%';
             piece.style.background = colors[Math.floor(Math.random() * colors.length)];
             piece.style.animationDelay = Math.random() * 0.8 + 's';
+            piece.style.webkitAnimationDelay = Math.random() * 0.8 + 's';
             piece.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+            piece.style.webkitAnimationDuration = (2.5 + Math.random() * 1.5) + 's';
             piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
             piece.style.width = (6 + Math.random() * 8) + 'px';
             piece.style.height = (6 + Math.random() * 8) + 'px';
             container.appendChild(piece);
         }
         
-        setTimeout(() => container.remove(), 4000);
+        setTimeout(function() { container.remove(); }, 4000);
     }
     
     // 增强的五彩纸屑效果
@@ -1987,7 +2375,9 @@
             piece.style.left = Math.random() * 100 + '%';
             piece.style.background = colors[Math.floor(Math.random() * colors.length)];
             piece.style.animationDelay = Math.random() * 1 + 's';
+            piece.style.webkitAnimationDelay = Math.random() * 1 + 's';
             piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+            piece.style.webkitAnimationDuration = (2 + Math.random() * 2) + 's';
             piece.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
             piece.style.width = (5 + Math.random() * 10) + 'px';
             piece.style.height = (5 + Math.random() * 10) + 'px';
@@ -1998,7 +2388,7 @@
             container.appendChild(piece);
         }
         
-        setTimeout(() => container.remove(), 4500);
+        setTimeout(function() { container.remove(); }, 4500);
     }
     
     // 礼物飘落效果
@@ -2016,12 +2406,14 @@
             item.textContent = giftEmojis[Math.floor(Math.random() * giftEmojis.length)];
             item.style.left = Math.random() * 100 + '%';
             item.style.animationDelay = (Math.random() * 1.5) + 's';
+            item.style.webkitAnimationDelay = (Math.random() * 1.5) + 's';
             item.style.animationDuration = (3 + Math.random() * 2) + 's';
+            item.style.webkitAnimationDuration = (3 + Math.random() * 2) + 's';
             item.style.fontSize = (20 + Math.random() * 20) + 'px';
             container.appendChild(item);
         }
         
-        setTimeout(() => container.remove(), 5000);
+        setTimeout(function() { container.remove(); }, 5000);
     }
 
     function createEnhancedSparkles() {
@@ -2038,12 +2430,14 @@
             sparkle.style.left = (10 + Math.random() * 80) + '%';
             sparkle.style.top = (10 + Math.random() * 80) + '%';
             sparkle.style.animationDelay = (Math.random() * 0.5) + 's';
+            sparkle.style.webkitAnimationDelay = (Math.random() * 0.5) + 's';
             sparkle.style.fontSize = (16 + Math.random() * 16) + 'px';
             box.appendChild(sparkle);
         }
         
-        setTimeout(() => {
-            box.querySelectorAll('.sparkle').forEach(s => s.remove());
+        setTimeout(function() {
+            var sparkles = box.querySelectorAll('.sparkle');
+            sparkles.forEach(function(s) { s.remove(); });
         }, 2000);
     }
 
@@ -2082,7 +2476,8 @@
         let winnerCount = 0;
         let totalPrizes = 121;
         
-        Object.values(LOTTERY_RESULTS).forEach(result => {
+        Object.keys(LOTTERY_RESULTS).forEach(function(key) {
+            var result = LOTTERY_RESULTS[key];
             if (result.prize) {
                 usedCount++;
                 if (result.won) winnerCount++;
@@ -2098,7 +2493,8 @@
         const winnersByCategory = {};
         const losers = [];
         
-        Object.entries(LOTTERY_RESULTS).forEach(([key, result]) => {
+        Object.keys(LOTTERY_RESULTS).forEach(function(key) {
+            var result = LOTTERY_RESULTS[key];
             if (!result.prize) return;
             
             if (result.won) {
@@ -2107,9 +2503,9 @@
                 const name = key.split('_')[0];
                 // 处理咖啡券显示完整信息
                 if (category === "瑞幸咖啡券") {
-                    winnersByCategory[category].push({ name, prize: result.prize + '（待选冰度/甜度）' });
+                    winnersByCategory[category].push({ name: name, prize: result.prize + '（待选冰度/甜度）' });
                 } else {
-                    winnersByCategory[category].push({ name, prize: result.prize });
+                    winnersByCategory[category].push({ name: name, prize: result.prize });
                 }
             } else {
                 losers.push(key.split('_')[0]);
@@ -2127,7 +2523,8 @@
             "瑞幸咖啡券": "list-kafei"
         };
         
-        Object.entries(categoryMap).forEach(([category, listId]) => {
+        Object.keys(categoryMap).forEach(function(category) {
+            const listId = categoryMap[category];
             const list = document.getElementById(listId);
             list.innerHTML = '';
             
@@ -2135,10 +2532,16 @@
             if (items.length === 0) {
                 list.innerHTML = '<div class="prize-item">暂无中奖者</div>';
             } else {
-                items.forEach(item => {
+                items.forEach(function(item) {
                     const div = document.createElement('div');
                     div.className = 'prize-item';
-                    div.innerHTML = `<span>${item.name}</span><span>${item.prize}</span>`;
+                    // 使用textContent而非innerHTML防止XSS
+                    var nameSpan = document.createElement('span');
+                    nameSpan.textContent = item.name;
+                    var prizeSpan = document.createElement('span');
+                    prizeSpan.textContent = item.prize;
+                    div.appendChild(nameSpan);
+                    div.appendChild(prizeSpan);
                     list.appendChild(div);
                 });
             }
@@ -2150,7 +2553,7 @@
         if (losers.length === 0) {
             loserList.innerHTML = '<div class="prize-item">暂无记录</div>';
         } else {
-            losers.forEach(name => {
+            losers.forEach(function(name) {
                 const div = document.createElement('div');
                 div.className = 'prize-item';
                 div.textContent = name;
@@ -2160,17 +2563,23 @@
     }
 
     function switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
         
-        document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
-        document.getElementById(`tab-${tab}`).classList.add('active');
+        var tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(function(btn) {
+            if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("switchTab('" + tab + "')") !== -1) {
+                btn.classList.add('active');
+            }
+        });
+        document.getElementById('tab-' + tab).classList.add('active');
     }
 
     function exportCSV() {
-        let csv = '姓名,类别,奖品,中奖时间\n';
+        let csv = '\uFEFF姓名,类别,奖品,中奖时间\n';
         
-        Object.entries(LOTTERY_RESULTS).forEach(([key, result]) => {
+        Object.keys(LOTTERY_RESULTS).forEach(function(key) {
+            var result = LOTTERY_RESULTS[key];
             if (!result.prize) return;
             
             const name = key.split('_')[0];
@@ -2178,7 +2587,11 @@
             
             if (result.won) {
                 const category = PRIZE_CATEGORY[result.prize] || '';
-                csv += `"${name}","${category}","${result.prize}","${instance === '1' ? '线上' : '线下'}"\n`;
+                // CSV转义：处理包含引号和逗号的情况
+                var escapedName = name.replace(/"/g, '""');
+                var escapedCategory = category.replace(/"/g, '""');
+                var escapedPrize = result.prize.replace(/"/g, '""');
+                csv += '"' + escapedName + '","' + escapedCategory + '","' + escapedPrize + '","' + (instance === '1' ? '线上' : '线下') + '"\n';
             }
         });
         
@@ -2190,18 +2603,21 @@
     }
 
     function resetLottery() {
-        if (confirm('确定要重置抽奖吗？所有已抽取的记录将被清除！')) {
-            localStorage.removeItem('lottery_results');
-            LOTTERY_RESULTS = generateLotteryResults();
+        if (confirm('确定要重置抽奖吗？所有已抽取的记录将被清除，奖品将重新随机分配！')) {
+            Storage.remove('lottery_results');
+            LOTTERY_RESULTS = generateLotteryResults(true);
             saveResults();
             updateStats();
             renderWinnerLists();
-            alert('抽奖已重置！');
+            alert('抽奖已重置！奖品已重新随机分配。');
         }
     }
 
     // ========== 启动 ==========
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function() {
+        init();
+        setupInputFocusFix();
+    });
     </script>
 </body>
 </html>
